@@ -199,6 +199,7 @@
     border-radius:0 12px 12px 0; font-size:13px; line-height:1.55; color:#6a5b3a; }
   .panel .body .funfact:empty { display:none; }
   .panel .body .funfact b { color:#b8860b; }
+  .panel .body .photoCredit { display:none; margin-top:12px; font-size:11px; color:#a99a80; font-style:italic; text-align:center; }
 
   .actions { display:flex; flex-direction:column; gap:10px; padding: 14px 18px 18px; border-top:1px solid #eee; }
   .btn {
@@ -572,6 +573,7 @@
     <div class="desc" id="pDesc"></div>
     <div class="known" id="pKnown"></div>
     <div class="funfact" id="pFact"></div>
+    <div class="photoCredit" id="pCredit"></div>
   </div>
   <div class="actions">
     <div class="distNote" id="pDist"></div>
@@ -710,12 +712,6 @@ const PLACES = [
     lat:1.30536, lng:103.90561,
     desc:"Artisan gelato with botanically-inspired flavours and a signature handmade thyme-infused cone.",
     known:"<b>Must-try:</b> White Chrysanthemum and Strawberry Basil. Expect a queue on weekends." },
-  { id:"glory", cat:"food", icon:"🥟", color:"#cf6b3d",
-    name:"Glory Catering",
-    addr:"139 East Coast Rd, S'pore 428829",
-    lat:1.30585, lng:103.90355,
-    desc:"A beloved Peranakan deli since 1959, known for handmade popiah, kueh pie tee and Nyonya snacks.",
-    known:"<b>Must-try:</b> DIY popiah set and kueh pie tee." },
 
   // ---------- CULTURE ----------
   { id:"koonseng", cat:"culture", icon:"🏘️", color:"#7a5cc4",
@@ -832,7 +828,7 @@ function refreshMarkers(){
 /* ============================================================
    WALKING ROUTE + NEAREST-STOP ARROW
    ============================================================ */
-const ROUTE_ORDER = ["koonseng","chinmeechin","kuanimtng","intan","guanhoesoon","senpaga","rumahbebe","kimchoo","glory","laksa","birdsofparadise","katongantique"];
+const ROUTE_ORDER = ["koonseng","chinmeechin","kuanimtng","intan","guanhoesoon","senpaga","rumahbebe","kimchoo","laksa","birdsofparadise","katongantique"];
 let routeLine=null, nearestMarker=null;
 /* Build the walking path. If we know the user's location, the route STARTS
    at the user and connects the remaining stops nearest-first, so they can
@@ -936,12 +932,11 @@ function renderList(){
    7.  DETAIL PANEL
    ============================================================ */
 /* ---- Landmark photo gallery ----
-   Put photo files in the same folder and list their names here.
-   (Two of the laksa photos you sent are identical, so I listed the
-   storefront + one bowl; add a 3rd name if you want a third slide.) */
-const PLACE_PHOTOS = {
-  laksa: ["laksa_1.png","laksa_2.png","laksa_3.png"],
-};
+   Photos are auto-detected from the folder. Just save image files named
+   <landmark-id>_1.png, <landmark-id>_2.png, … (e.g. chinmeechin_1.png).
+   Up to PHOTO_MAX photos per landmark are picked up automatically. */
+const PHOTO_EXTS = ["png","jpg","jpeg"];   // any of these formats work
+const PHOTO_MAX = 8;                       // most photos to look for per landmark
 let galleryPhotos=[], galleryIdx=0;
 function showGalleryPhoto(i){
   if(!galleryPhotos.length) return;
@@ -951,24 +946,48 @@ function showGalleryPhoto(i){
   document.getElementById("pCount").textContent=`${galleryIdx+1} / ${galleryPhotos.length}`;
 }
 function galleryNav(d,e){ if(e) e.stopPropagation(); showGalleryPhoto(galleryIdx+d); }
+// find <id>_i with any supported extension (prefers png, then jpg, then jpeg)
+function probePhotoAt(id, i, cb){
+  const exts=PHOTO_EXTS.slice();
+  (function tryNext(){
+    if(!exts.length){ cb(null); return; }
+    const f=`${id}_${i}.${exts.shift()}`;
+    const im=new Image();
+    im.onload=()=>cb(f);
+    im.onerror=()=>tryNext();
+    im.src=f;
+  })();
+}
+function probeGallery(id, cb){
+  const results=new Array(PHOTO_MAX); let pending=PHOTO_MAX;
+  for(let i=1;i<=PHOTO_MAX;i++){
+    probePhotoAt(id, i, (f)=>{ results[i-1]=f; if(--pending===0) cb(results.filter(Boolean)); });
+  }
+}
 function setupGallery(p){
-  const photos = PLACE_PHOTOS[p.id] || [];
   const img=document.getElementById("pHeroImg");
   const icon=document.getElementById("pHeroIcon");
   const prev=document.getElementById("pPrev"), next=document.getElementById("pNext"), cnt=document.getElementById("pCount");
+  const credit=document.getElementById("pCredit");
   const showGradient=()=>{ img.style.display="none"; icon.style.display=""; prev.style.display=next.style.display=cnt.style.display="none";
+    if(credit) credit.style.display="none";
     document.getElementById("pHero").style.background=`linear-gradient(135deg,${p.color},${shade(p.color,-25)})`; };
-  galleryPhotos = photos; galleryIdx = 0;
-  if(!photos.length){ showGradient(); return; }
-  // photos exist → show image; if the file is missing, fall back to gradient
-  img.onerror=()=>showGradient();
-  document.getElementById("pHero").style.background="#222";
-  img.style.display="block"; icon.style.display="none";
-  const multi = photos.length>1;
-  prev.style.display=next.style.display=multi?"flex":"none";
-  cnt.style.display=multi?"block":"none";
-  prev.onclick=(e)=>galleryNav(-1,e); next.onclick=(e)=>galleryNav(1,e);
-  showGalleryPhoto(0);
+  galleryPhotos=[]; galleryIdx=0;
+  showGradient();   // default look until we know which photos exist
+  probeGallery(p.id, list=>{
+    if(activeId!==p.id) return;         // panel changed while probing
+    if(!list.length){ showGradient(); return; }
+    galleryPhotos=list;
+    img.onerror=()=>showGradient();
+    document.getElementById("pHero").style.background="#222";
+    img.style.display="block"; icon.style.display="none";
+    const multi=list.length>1;
+    prev.style.display=next.style.display=multi?"flex":"none";
+    cnt.style.display=multi?"block":"none";
+    prev.onclick=(e)=>galleryNav(-1,e); next.onclick=(e)=>galleryNav(1,e);
+    if(credit){ credit.textContent="📷 Images used for educational / demo purposes only."; credit.style.display="block"; }
+    showGalleryPhoto(0);
+  });
 }
 
 function openPanel(id){
