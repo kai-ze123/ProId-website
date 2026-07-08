@@ -162,8 +162,24 @@
   }
   .panel.open { transform: translateX(0); visibility: visible; }
   .panel .hero {
-    height: 150px; display:flex; align-items:flex-end; padding:14px;
-    color:#fff; position: relative; font-size: 60px;
+    height: 180px; display:flex; align-items:flex-end; padding:14px;
+    color:#fff; position: relative; font-size: 60px; overflow:hidden;
+  }
+  .panel .hero #pHeroImg { display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+  .panel .hero #pHeroIcon { position:relative; z-index:1; }
+  .panel .hero .gnav {
+    position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+    width:36px; height:36px; border-radius:50%; border:none; cursor:pointer;
+    background:rgba(0,0,0,.45); color:#fff; font-size:22px; line-height:1;
+    display:none; align-items:center; justify-content:center;
+  }
+  .panel .hero .gnav:hover { background:rgba(0,0,0,.65); }
+  .panel .hero .gnav.prev { left:10px; }
+  .panel .hero .gnav.next { right:10px; }
+  .panel .hero .gcount {
+    position:absolute; bottom:12px; left:50%; transform:translateX(-50%); z-index:2;
+    display:none; background:rgba(0,0,0,.5); color:#fff; font-size:12px; font-weight:600;
+    padding:3px 10px; border-radius:999px;
   }
   .panel .hero .close {
     position:absolute; top:12px; right:12px; width:34px;height:34px;
@@ -542,7 +558,12 @@
 
 <!-- Detail panel -->
 <div class="panel" id="panel">
-  <div class="hero" id="pHero"><span id="pHeroIcon">🍜</span>
+  <div class="hero" id="pHero">
+    <img id="pHeroImg" alt="">
+    <span id="pHeroIcon">🍜</span>
+    <button class="gnav prev" id="pPrev" aria-label="Previous photo">‹</button>
+    <button class="gnav next" id="pNext" aria-label="Next photo">›</button>
+    <div class="gcount" id="pCount"></div>
     <button class="close" onclick="closePanel()">✕</button>
   </div>
   <div class="body">
@@ -914,11 +935,47 @@ function renderList(){
 /* ============================================================
    7.  DETAIL PANEL
    ============================================================ */
+/* ---- Landmark photo gallery ----
+   Put photo files in the same folder and list their names here.
+   (Two of the laksa photos you sent are identical, so I listed the
+   storefront + one bowl; add a 3rd name if you want a third slide.) */
+const PLACE_PHOTOS = {
+  laksa: ["laksa_1.png","laksa_2.png","laksa_3.png"],
+};
+let galleryPhotos=[], galleryIdx=0;
+function showGalleryPhoto(i){
+  if(!galleryPhotos.length) return;
+  galleryIdx=(i+galleryPhotos.length)%galleryPhotos.length;
+  const img=document.getElementById("pHeroImg");
+  img.src=galleryPhotos[galleryIdx];
+  document.getElementById("pCount").textContent=`${galleryIdx+1} / ${galleryPhotos.length}`;
+}
+function galleryNav(d,e){ if(e) e.stopPropagation(); showGalleryPhoto(galleryIdx+d); }
+function setupGallery(p){
+  const photos = PLACE_PHOTOS[p.id] || [];
+  const img=document.getElementById("pHeroImg");
+  const icon=document.getElementById("pHeroIcon");
+  const prev=document.getElementById("pPrev"), next=document.getElementById("pNext"), cnt=document.getElementById("pCount");
+  const showGradient=()=>{ img.style.display="none"; icon.style.display=""; prev.style.display=next.style.display=cnt.style.display="none";
+    document.getElementById("pHero").style.background=`linear-gradient(135deg,${p.color},${shade(p.color,-25)})`; };
+  galleryPhotos = photos; galleryIdx = 0;
+  if(!photos.length){ showGradient(); return; }
+  // photos exist → show image; if the file is missing, fall back to gradient
+  img.onerror=()=>showGradient();
+  document.getElementById("pHero").style.background="#222";
+  img.style.display="block"; icon.style.display="none";
+  const multi = photos.length>1;
+  prev.style.display=next.style.display=multi?"flex":"none";
+  cnt.style.display=multi?"block":"none";
+  prev.onclick=(e)=>galleryNav(-1,e); next.onclick=(e)=>galleryNav(1,e);
+  showGalleryPhoto(0);
+}
+
 function openPanel(id){
   activeId=id;
   document.getElementById("sidebar").classList.remove("open");   // close mobile list
   const p=place(id);
-  document.getElementById("pHero").style.background=`linear-gradient(135deg,${p.color},${shade(p.color,-25)})`;
+  setupGallery(p);
   document.getElementById("pHeroIcon").textContent=p.icon;
   document.getElementById("pName").textContent=p.name;
   document.getElementById("pAddr").textContent=p.addr;
