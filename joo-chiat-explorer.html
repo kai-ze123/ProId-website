@@ -52,23 +52,19 @@
   .brand small { display: block; font-size: 11px; opacity: .85; font-weight: 400; }
   @media (max-width:780px){ .brand #brandLogo,.brand .logo-fallback{ height:38px;width:38px; } .brand h1{ font-size:16px; } }
 
-  /* Top tabs */
-  .tabs { display:flex; gap:6px; background:rgba(255,255,255,.14); padding:4px; border-radius:12px; }
-  .tabs button {
-    border:none; background:transparent; color:#fff; font-weight:700; font-size:14px;
-    padding:8px 18px; border-radius:9px; cursor:pointer; display:flex; align-items:center; gap:7px;
-    transition:background .18s; opacity:.85;
-  }
-  .tabs button.active { background:#fff; color:var(--peranakan-teal); opacity:1; }
-  .tabs .tEmo { line-height:1; }
-  @media (max-width:780px){ .tabs button{ padding:8px 12px; font-size:13px; } .brand small{ display:none; } }
-  /* On phones, collapse tabs to icons only so the logo is never crowded */
-  @media (max-width:600px){ .tabs .tTxt{ display:none; } .tabs button{ padding:8px 10px; gap:0; } .tabs{ gap:3px; padding:3px; } }
+  @media (max-width:780px){ .brand small{ display:none; } }
 
   .langSel { background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.3);
     border-radius:9px; padding:7px 8px; font-size:13px; font-weight:700; cursor:pointer; max-width:96px; flex-shrink:0; }
   .langSel option { color:#23272e; }
   @media (max-width:600px){ .langSel{ max-width:74px; padding:7px 4px; font-size:12px; } }
+
+  /* Main navigation dropdown */
+  .navSel { background:#fff; color:var(--peranakan-teal); border:none; border-radius:10px;
+    padding:9px 12px; font-size:14px; font-weight:800; cursor:pointer; flex-shrink:0;
+    box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .navSel option { color:#23272e; font-weight:600; }
+  @media (max-width:600px){ .navSel{ padding:9px 8px; font-size:13px; } }
 
   .score {
     display: flex; align-items: center; gap: 16px;
@@ -384,12 +380,11 @@
     .brand { min-width:0; flex-shrink:0; }        /* logo keeps its space */
     .brand #brandLogo, .brand .logo-fallback { flex-shrink:0; }
     .brand h1 { font-size:15px; white-space:nowrap; }
-    .tabs { flex-shrink:1; min-width:0; }         /* tabs give way instead */
+    .navSel { flex-shrink:1; min-width:0; }        /* menu gives way instead */
     .score { display:none; }              /* points/visited live in the Rewards tab on mobile */
   }
   @media (max-width: 430px) {
     .brand > div { display:none; }        /* keep just the logo to save room */
-    .tabs button { padding:8px 10px; font-size:12px; gap:4px; }
   }
   #listToggle {
     display:none; position:absolute; bottom:34px; right:14px; z-index:1100;
@@ -442,12 +437,12 @@
       <small>Guide of Katong–Joo Chiat</small>
     </div>
   </div>
-  <div class="tabs" id="tabs">
-    <button data-view="home" class="active">🏠 Home</button>
-    <button data-view="map">🗺️ Map</button>
-    <button data-view="rewards">🏆 Rewards</button>
-    <button data-view="qr">📷 QR</button>
-  </div>
+  <select id="navSel" class="navSel" aria-label="Menu">
+    <option value="home" selected>🏠 Home</option>
+    <option value="map">🗺️ Map</option>
+    <option value="rewards">🏆 Rewards</option>
+    <option value="qr">📷 QR Codes</option>
+  </select>
 
   <select id="langSel" class="langSel" title="Language" aria-label="Language">
     <option value="en">🌐 EN</option>
@@ -1354,13 +1349,9 @@ function setLang(l){ lang = I18N[l]?l:"en"; state.lang=lang; save(); applyLang()
 function applyLang(){
   document.documentElement.lang = ({zh:"zh-CN",ja:"ja",ms:"ms",en:"en"})[lang];
   const T=(sel,key)=>{ const el=document.querySelector(sel); if(el) el.textContent=t(key); };
-  const tabs=document.querySelectorAll("#tabs button");
-  const keys=["tab_home","tab_map","tab_rewards","tab_qr"];
-  tabs.forEach((btn,i)=>{
-    const label=t(keys[i]); const sp=label.indexOf(" ");
-    const emo=sp>0?label.slice(0,sp):label, txt=sp>0?label.slice(sp+1):"";
-    btn.innerHTML=`<span class="tEmo">${emo}</span><span class="tTxt">${txt}</span>`;
-  });
+  const ns=document.getElementById("navSel");
+  if(ns){ const keys=["tab_home","tab_map","tab_rewards","tab_qr"];
+    keys.forEach((k,i)=>{ if(ns.options[i]) ns.options[i].text=t(k); }); }
   T(".homeTitle","home_title"); T(".homeTag","home_tag");
   T("#prefQ","pref_q"); T("#prefHint","pref_hint");
   const pf=document.querySelectorAll(".prefBtns button"); if(pf[0]){pf[0].textContent=t("pref_food");pf[1].textContent=t("pref_culture");pf[2].textContent=t("pref_both");}
@@ -1437,7 +1428,7 @@ function importProgress(){
 
 function showView(view){
   ["home","map","rewards","qr"].forEach(v=>document.body.classList.toggle("view-"+v, view===v));
-  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("active", b.dataset.view===view));
+  const ns=document.getElementById("navSel"); if(ns) ns.value=view;
   if(view==="rewards"){ closePanel(); renderRewards(); }
   else if(view==="qr"){ closePanel(); renderQRCodes(); }
   else if(view==="home"){ closePanel(); }
@@ -1652,7 +1643,7 @@ document.querySelectorAll(".filters button").forEach(b=>{
     if(map){ refreshMarkers(); updateNearest(); } renderList();
   };
 });
-document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+document.getElementById("navSel").onchange=(e)=>showView(e.target.value);
 document.getElementById("rewardChip").onclick=()=>showView("rewards");
 document.getElementById("pointsChip").onclick=()=>showView("rewards");
 document.getElementById("accountChip").style.cursor="pointer";
