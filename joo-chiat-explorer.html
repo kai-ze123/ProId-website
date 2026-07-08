@@ -369,6 +369,15 @@
   #gps .dot { width:9px;height:9px;border-radius:50%; background:#bbb; }
   #gps.on .dot { background:#34b37a; box-shadow:0 0 0 4px rgba(52,179,122,.25); }
 
+  /* MRT toggle + station markers (Thomson–East Coast Line = brown) */
+  #mrtToggle { position:absolute; bottom:60px; left:16px; z-index:1100;
+    padding:9px 14px; border-radius:999px; background:#fff; color:#9D5B25; border:2px solid #9D5B25;
+    font-size:13px; font-weight:700; cursor:pointer; box-shadow:var(--shadow); display:flex; align-items:center; gap:6px; }
+  #mrtToggle.on { background:#9D5B25; color:#fff; }
+  .mrt-marker { width:26px; height:26px; border-radius:8px; background:#9D5B25; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:14px; border:2px solid #fff;
+    box-shadow:0 2px 6px rgba(0,0,0,.35); }
+
   /* ---------- Mobile ---------- */
   @media (max-width: 780px) {
     aside { position:absolute; left:0; top:0; bottom:0; width:82vw; max-width:320px; transform:translateX(-105%);
@@ -437,7 +446,7 @@
       <small>Guide of Katong–Joo Chiat</small>
     </div>
   </div>
-  <select id="navSel" class="navSel" aria-label="Menu">
+  <select id="navSel" class="navSel" aria-label="Menu" autocomplete="off">
     <option value="home" selected>🏠 Home</option>
     <option value="map">🗺️ Map</option>
     <option value="rewards">🏆 Rewards</option>
@@ -526,6 +535,7 @@
       <span>📍 <b id="mVisit">0</b>/<span id="mTotal">0</span></span>
     </div>
     <div id="gps"><span class="dot"></span><span id="gpsText">Enable my location</span></div>
+    <button id="mrtToggle" onclick="toggleMrt()">🚇 MRT</button>
     <button id="listToggle">📋 Landmarks</button>
   </div>
 </div>
@@ -784,6 +794,7 @@ function initMap(){
   });
   refreshMarkers();
   updateNearest();
+  if(state.showMrt) setMrt(true);
 }
 
 function refreshMarkers(){
@@ -846,6 +857,36 @@ function updateNearest(){
   }
   drawRoute();   // keep the route starting from the user's current position
 }
+
+/* ============================================================
+   MRT STATIONS (Thomson–East Coast Line) — toggle on/off
+   Coordinates are approximate station entrance locations.
+   ============================================================ */
+const MRT_STATIONS = [
+  { name:"Marine Parade MRT (TE26)",  lat:1.30181, lng:103.90535 },
+  { name:"Tanjong Katong MRT (TE25)", lat:1.29963, lng:103.89570 },
+  { name:"Marine Terrace MRT (TE27)", lat:1.30683, lng:103.91243 },
+  { name:"Katong Park MRT (TE24)",    lat:1.29757, lng:103.88936 },
+];
+let mrtLayer=null, mrtOn=false;
+function buildMrt(){
+  if(!map || mrtLayer) return;
+  mrtLayer=L.layerGroup();
+  MRT_STATIONS.forEach(s=>{
+    const ic=L.divIcon({className:"",html:'<div class="mrt-marker">🚇</div>',iconSize:[28,28],iconAnchor:[14,14]});
+    const m=L.marker([s.lat,s.lng],{icon:ic,title:s.name});
+    m.bindPopup(`<b>🚇 ${s.name}</b><br>Thomson–East Coast Line`);
+    mrtLayer.addLayer(m);
+  });
+}
+function setMrt(on){
+  mrtOn=on; state.showMrt=on; save();
+  const btn=document.getElementById("mrtToggle"); if(btn) btn.classList.toggle("on", on);
+  if(!map) return;
+  buildMrt();
+  if(on){ mrtLayer.addTo(map); } else if(map.hasLayer(mrtLayer)){ map.removeLayer(mrtLayer); }
+}
+function toggleMrt(){ setMrt(!mrtOn); }
 
 /* ============================================================
    6.  SIDEBAR LIST
@@ -1668,6 +1709,7 @@ document.getElementById("resetBtn").onclick=()=>{
 renderList(); updateScore(); renderRewards();
 updateAccountUI();
 applyLang();
+showView("home");   // always start on Home and sync the dropdown to it
 startGPS();   // begin tracking the visitor so the map follows them & geofence works
 
 /* load the free OpenStreetMap map (Leaflet) */
