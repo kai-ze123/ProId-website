@@ -189,16 +189,53 @@
   .btn.check:disabled { filter: grayscale(.2); }
   .distNote { font-size:12px; text-align:center; color:#8a8172; }
 
-  /* ---------- Full-page tabs (Rewards / QR) ---------- */
-  .rewards, .qrview { display:none; }
-  body.view-rewards .app, body.view-qr .app { display:none; }
+  /* ---------- Full-page tabs (Home / Rewards / QR) ---------- */
+  .rewards, .qrview, .homeview { display:none; }
+  body.view-rewards .app, body.view-qr .app, body.view-home .app { display:none; }
   body.view-rewards .rewards { display:flex; }
   body.view-qr .qrview { display:flex; }
+  body.view-home .homeview { display:block; }
   .rewards, .qrview {
     position: absolute; top: 62px; left:0; right: 0; bottom: 0;
     background: #fffdf9; z-index: 26; flex-direction:column;
     animation: fadeUp .28s ease;
   }
+
+  /* ---------- Home / landing ---------- */
+  .homeview {
+    position:absolute; top:62px; left:0; right:0; bottom:0; z-index:26;
+    overflow-y:auto; background:
+      radial-gradient(1200px 400px at 50% -80px, rgba(15,155,142,.18), transparent 60%),
+      linear-gradient(180deg,#fff8f0 0%, #fdf1e6 100%);
+    animation: fadeUp .28s ease;
+  }
+  .homeInner { max-width:640px; margin:0 auto; padding:30px 20px 60px; text-align:center; }
+  .homeLogo { width:150px; height:150px; border-radius:50%; object-fit:cover;
+    box-shadow:0 10px 30px rgba(0,0,0,.18); background:#fff; }
+  .homeTitle { font-size:26px; font-weight:800; margin-top:18px; color:var(--peranakan-teal); }
+  .homeTag { font-size:14.5px; color:#6b6255; margin-top:8px; line-height:1.55; }
+  .homeCard { background:#fff; border-radius:20px; box-shadow:var(--shadow); padding:22px 18px; margin-top:26px; }
+  .homeCard h2 { font-size:18px; }
+  .homeHint { font-size:12.5px; color:#8a8172; margin-top:4px; }
+  .prefBtns { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+  .prefBtns button {
+    flex:1; min-width:96px; padding:16px 8px; border:2px solid #eadfce; background:#fff; border-radius:14px;
+    font-weight:700; font-size:14px; cursor:pointer; transition:all .16s;
+  }
+  .prefBtns button:hover { border-color:var(--peranakan-teal); transform:translateY(-2px); box-shadow:0 6px 16px rgba(15,155,142,.18); }
+  .prefBtns button.sel { background:var(--peranakan-teal); color:#fff; border-color:var(--peranakan-teal); }
+  .recHead { display:flex; align-items:center; justify-content:space-between; margin:28px 0 6px; }
+  .recRedo { background:#f1ece2; border:none; border-radius:999px; padding:6px 14px; font-weight:700; font-size:12px; color:#8a7a5e; cursor:pointer; }
+  .recCard { display:flex; gap:14px; background:#fff; border-radius:16px; box-shadow:0 4px 14px rgba(0,0,0,.08); padding:14px; margin-bottom:12px; text-align:left; cursor:pointer; transition:transform .14s; }
+  .recCard:hover { transform:translateY(-2px); }
+  .recCard .recThumb { width:56px; height:56px; border-radius:14px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:28px; color:#fff; }
+  .recCard h3 { font-size:15.5px; }
+  .recCard p { font-size:12.5px; color:#857c6e; margin-top:3px; line-height:1.4; }
+  .recCard .recGo { align-self:center; margin-left:auto; background:var(--peranakan-teal); color:#fff; border:none; border-radius:10px; padding:9px 12px; font-weight:700; font-size:12.5px; cursor:pointer; white-space:nowrap; }
+  .homeStart { margin-top:8px; width:100%; padding:15px; border:none; border-radius:14px; background:linear-gradient(100deg,var(--peranakan-coral),#d94f3c); color:#fff; font-weight:800; font-size:15.5px; cursor:pointer; box-shadow:0 6px 18px rgba(239,111,92,.35); }
+  .homeHow { margin-top:30px; font-size:13px; color:#6b6255; background:#f0fbf9; border:1px solid #c8ece7; border-radius:12px; padding:12px 14px; }
+  .homeSkip { margin-top:16px; background:none; border:none; color:var(--peranakan-teal); font-weight:700; font-size:13.5px; cursor:pointer; text-decoration:underline; }
+  @media (max-width:430px){ .homeLogo{ width:120px;height:120px; } .homeTitle{ font-size:22px; } }
   @keyframes fadeUp { from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
   .rewards .rhead {
     padding: 26px 20px; background: linear-gradient(120deg,var(--peranakan-yellow),var(--peranakan-coral));
@@ -315,11 +352,16 @@
     .tabs button { padding:8px 10px; font-size:12px; gap:4px; }
   }
   #listToggle {
-    display:none; position:absolute; bottom:16px; right:16px; z-index:15;
-    width:54px;height:54px;border-radius:50%; background:var(--peranakan-teal); color:#fff;
-    border:none; font-size:22px; box-shadow:var(--shadow); cursor:pointer;
-    align-items:center; justify-content:center;
+    display:none; position:absolute; bottom:16px; right:16px; z-index:16;
+    padding:12px 18px; border-radius:999px; background:var(--peranakan-teal); color:#fff;
+    border:none; font-size:14px; font-weight:700; box-shadow:var(--shadow); cursor:pointer;
+    align-items:center; justify-content:center; gap:6px;
   }
+  .listHead { display:none; align-items:center; justify-content:space-between;
+    padding:14px 16px 4px; font-weight:800; font-size:16px; color:var(--peranakan-teal); }
+  .listHead button { width:32px; height:32px; border-radius:50%; border:none; background:#f1ece2;
+    color:#6b6255; font-size:16px; cursor:pointer; }
+  @media (max-width:780px){ .listHead { display:flex; } }
   /* Leaflet emoji markers */
   .poi-marker {
     width:38px; height:38px; border-radius:50%; display:flex; align-items:center;
@@ -335,7 +377,7 @@
   .leaflet-container { background:#faf3e7; font-family:inherit; }
 </style>
 </head>
-<body class="view-map">
+<body class="view-home">
 <header>
   <div class="brand">
     <img id="brandLogo" src="warwick-logo.png" alt="Warwick Inc"
@@ -347,9 +389,10 @@
     </div>
   </div>
   <div class="tabs" id="tabs">
-    <button data-view="map" class="active">🗺️ Map</button>
+    <button data-view="home" class="active">🏠 Home</button>
+    <button data-view="map">🗺️ Map</button>
     <button data-view="rewards">🏆 Rewards</button>
-    <button data-view="qr">📷 QR Codes</button>
+    <button data-view="qr">📷 QR</button>
   </div>
 
   <div class="score">
@@ -358,8 +401,44 @@
   </div>
 </header>
 
+<!-- Home / landing page -->
+<div class="homeview" id="homeview">
+  <div class="homeInner">
+    <img class="homeLogo" src="warwick-logo.png" alt="Warwick Inc"
+         onerror="this.style.display='none';">
+    <h1 class="homeTitle">Welcome to Katong–Joo Chiat</h1>
+    <p class="homeTag">Your local guide to Singapore's Peranakan heart — food, culture &amp; real stories.</p>
+
+    <div class="homeCard" id="prefCard">
+      <h2>First, what are you in the mood for?</h2>
+      <p class="homeHint">We'll suggest the best spots to start with.</p>
+      <div class="prefBtns">
+        <button data-pref="food">🍜 Food</button>
+        <button data-pref="culture">🎎 Culture</button>
+        <button data-pref="both">🌸 A bit of both</button>
+      </div>
+    </div>
+
+    <div id="recSection" style="display:none;">
+      <div class="recHead">
+        <span class="sectionTitle" id="recTitle">Recommended for you</span>
+        <button class="recRedo" onclick="resetPref()">↺ Change</button>
+      </div>
+      <div id="recList"></div>
+      <button class="homeStart" onclick="showView('map')">Start exploring the map →</button>
+    </div>
+
+    <div class="homeHow">🎟️ Scan the QR code at each spot to check in and earn <b>$5 food vouchers</b>.</div>
+    <button class="homeSkip" onclick="showView('map')">Skip and open the full map →</button>
+  </div>
+</div>
+
 <div class="app">
   <aside id="sidebar">
+    <div class="listHead" id="listHead">
+      <span>Landmarks</span>
+      <button id="listClose" aria-label="Close list">✕</button>
+    </div>
     <div class="filters">
       <button class="active" data-cat="all">All</button>
       <button data-cat="food">🍜 Food</button>
@@ -380,7 +459,7 @@
       </div>
     </div>
     <div id="gps"><span class="dot"></span><span id="gpsText">Enable my location</span></div>
-    <button id="listToggle">📋</button>
+    <button id="listToggle">📋 Landmarks</button>
   </div>
 </div>
 
@@ -657,6 +736,7 @@ function renderList(){
    ============================================================ */
 function openPanel(id){
   activeId=id;
+  document.getElementById("sidebar").classList.remove("open");   // close mobile list
   const p=place(id);
   document.getElementById("pHero").style.background=`linear-gradient(135deg,${p.color},${shade(p.color,-25)})`;
   document.getElementById("pHeroIcon").textContent=p.icon;
@@ -877,11 +957,54 @@ function renderRewards(){
 }
 
 function showView(view){
-  ["map","rewards","qr"].forEach(v=>document.body.classList.toggle("view-"+v, view===v));
+  ["home","map","rewards","qr"].forEach(v=>document.body.classList.toggle("view-"+v, view===v));
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("active", b.dataset.view===view));
   if(view==="rewards"){ closePanel(); renderRewards(); }
   else if(view==="qr"){ closePanel(); renderQRCodes(); }
+  else if(view==="home"){ closePanel(); }
   else if(map){ setTimeout(()=>map.invalidateSize(),100); }
+  // on mobile, close the slide-out list when changing views
+  document.getElementById("sidebar").classList.remove("open");
+}
+
+/* ============================================================
+   HOME PAGE  —  preference-based recommendations
+   ============================================================ */
+const RECS = {
+  food:    ["laksa","chinmeechin","birdsofparadise"],
+  culture: ["koonseng","senpaga","kuanimtng"],
+  both:    ["koonseng","laksa","chinmeechin","intan"]
+};
+const REC_TITLES = {
+  food:"🍜 Best food to start with", culture:"🎎 Cultural gems to see first", both:"🌸 A great first taste of both"
+};
+function choosePref(pref){
+  document.querySelectorAll(".prefBtns button").forEach(b=>b.classList.toggle("sel", b.dataset.pref===pref));
+  document.getElementById("recTitle").textContent = REC_TITLES[pref] || "Recommended for you";
+  const list=document.getElementById("recList"); list.innerHTML="";
+  (RECS[pref]||[]).forEach(id=>{
+    const p=place(id); if(!p) return;
+    const short = p.desc.length>90 ? p.desc.slice(0,88)+"…" : p.desc;
+    const el=document.createElement("div"); el.className="recCard";
+    el.innerHTML=`
+      <div class="recThumb" style="background:${p.color}">${p.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <h3>${p.name}</h3>
+        <p>${short}</p>
+      </div>
+      <button class="recGo">View →</button>`;
+    const open=()=>{ showView("map"); openPanel(id); };
+    el.onclick=open;
+    grid_stop(el.querySelector(".recGo"), open);
+    list.appendChild(el);
+  });
+  document.getElementById("recSection").style.display="block";
+  document.getElementById("recSection").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+function grid_stop(btn, fn){ btn.onclick=(e)=>{ e.stopPropagation(); fn(); }; }
+function resetPref(){
+  document.querySelectorAll(".prefBtns button").forEach(b=>b.classList.remove("sel"));
+  document.getElementById("recSection").style.display="none";
 }
 
 /* ============================================================
@@ -1052,6 +1175,10 @@ document.getElementById("rewardChip").onclick=()=>showView("rewards");
 document.getElementById("pointsChip").onclick=()=>showView("rewards");
 document.getElementById("gps").onclick=startGPS;
 document.getElementById("listToggle").onclick=()=>document.getElementById("sidebar").classList.toggle("open");
+document.getElementById("listClose").onclick=()=>document.getElementById("sidebar").classList.remove("open");
+document.querySelectorAll(".prefBtns button").forEach(b=>b.onclick=()=>choosePref(b.dataset.pref));
+document.querySelector(".brand").style.cursor="pointer";
+document.querySelector(".brand").onclick=()=>showView("home");
 document.getElementById("resetBtn").onclick=()=>{
   if(confirm("Reset all progress, points and badges?")){
     state={visited:[],points:0,badges:[],vouchers:{}}; save();
