@@ -60,11 +60,15 @@
     transition:background .18s; opacity:.85;
   }
   .tabs button.active { background:#fff; color:var(--peranakan-teal); opacity:1; }
+  .tabs .tEmo { line-height:1; }
   @media (max-width:780px){ .tabs button{ padding:8px 12px; font-size:13px; } .brand small{ display:none; } }
+  /* On phones, collapse tabs to icons only so the logo is never crowded */
+  @media (max-width:600px){ .tabs .tTxt{ display:none; } .tabs button{ padding:8px 10px; gap:0; } .tabs{ gap:3px; padding:3px; } }
 
   .langSel { background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.3);
-    border-radius:9px; padding:7px 8px; font-size:13px; font-weight:700; cursor:pointer; max-width:96px; }
+    border-radius:9px; padding:7px 8px; font-size:13px; font-weight:700; cursor:pointer; max-width:96px; flex-shrink:0; }
   .langSel option { color:#23272e; }
+  @media (max-width:600px){ .langSel{ max-width:74px; padding:7px 4px; font-size:12px; } }
 
   .score {
     display: flex; align-items: center; gap: 16px;
@@ -322,8 +326,6 @@
   #scanModal .scanHint { color:#fff; margin-top:16px; font-size:14px; text-align:center; max-width:420px; line-height:1.5; }
   #scanModal .scanClose { margin-top:18px; padding:12px 26px; background:#fff; color:#111; border:none; border-radius:999px; font-weight:700; cursor:pointer; font-size:15px; }
   .btn.scan { background: var(--peranakan-teal); color:#fff; }
-  .btn.audio { background:#f3ecfa; color:#6a4fb8; border:1.5px solid #d8c9f0; }
-  .btn.audio:hover { background:#ece0fa; }
 
   /* Account / cross-device box */
   .acctBox { background:#fff; border:1px solid #eadfce; border-radius:14px; padding:14px; margin-bottom:18px; }
@@ -331,6 +333,8 @@
   .acctInput { width:100%; padding:10px 12px; border:1px solid #e0d7c8; border-radius:10px; font-size:14px; margin-bottom:9px; }
   .acctBtn { width:100%; padding:11px; border:none; border-radius:10px; background:var(--peranakan-teal); color:#fff; font-weight:700; font-size:14px; cursor:pointer; }
   .acctBtn.ghost { background:#f1ece2; color:#6b6255; }
+  .acctBtn.danger { background:#fde8e3; color:#c0392b; }
+  .acctBtn.danger:hover { background:#f9d7cf; }
   .acctRow { display:flex; flex-direction:column; gap:8px; }
 
   /* print: only QR cards */
@@ -376,10 +380,11 @@
     aside.open { transform:translateX(0); }
     .panel, .rewards, .qrview { width:100%; max-width:100vw; }
     #listToggle { display:flex !important; }
-    header { padding:0 12px; gap:8px; }
-    .brand { min-width:0; flex-shrink:1; }
+    header { padding:0 10px; gap:6px; }
+    .brand { min-width:0; flex-shrink:0; }        /* logo keeps its space */
+    .brand #brandLogo, .brand .logo-fallback { flex-shrink:0; }
     .brand h1 { font-size:15px; white-space:nowrap; }
-    .tabs { flex-shrink:0; }
+    .tabs { flex-shrink:1; min-width:0; }         /* tabs give way instead */
     .score { display:none; }              /* points/visited live in the Rewards tab on mobile */
   }
   @media (max-width: 430px) {
@@ -544,7 +549,6 @@
   </div>
   <div class="actions">
     <div class="distNote" id="pDist"></div>
-    <button class="btn audio" id="pAudio">🔊 Play story</button>
     <button class="btn dir" id="pDir">🧭 Get Directions</button>
     <button class="btn scan" id="pCheck">📷 Scan QR to check in</button>
   </div>
@@ -571,7 +575,7 @@
         <button id="emailVouchersBtn" class="acctBtn ghost" onclick="emailVouchers()">✉️ Email my vouchers</button>
         <button id="syncExportBtn" class="acctBtn ghost" onclick="exportProgress()">⬆️ Get my sync code</button>
         <button id="syncImportBtn" class="acctBtn ghost" onclick="importProgress()">⬇️ Enter a sync code</button>
-        <button class="acctBtn ghost" onclick="signOut()">Sign out</button>
+        <button class="acctBtn danger" onclick="signOut()">🚪 Sign out</button>
       </div>
     </div>
 
@@ -784,7 +788,6 @@ function initMap(){
     markers[p.id]=m;
   });
   refreshMarkers();
-  drawRoute();
   updateNearest();
 }
 
@@ -804,10 +807,33 @@ function refreshMarkers(){
    ============================================================ */
 const ROUTE_ORDER = ["koonseng","chinmeechin","kuanimtng","intan","guanhoesoon","senpaga","rumahbebe","kimchoo","glory","laksa","birdsofparadise","katongantique"];
 let routeLine=null, nearestMarker=null;
+/* Build the walking path. If we know the user's location, the route STARTS
+   at the user and connects the remaining stops nearest-first, so they can
+   begin with whichever landmark is closest to them. */
+function computeRoute(){
+  const shown = PLACES.filter(p=> currentFilter==="all"||currentFilter===p.cat);
+  const remaining = shown.filter(p=>!state.visited.includes(p.id));
+  const pool = (remaining.length ? remaining : shown).slice();
+  if(userPos && pool.length){
+    const coords=[[userPos.lat,userPos.lng]];
+    let cur={lat:userPos.lat,lng:userPos.lng};
+    const left=pool.slice();
+    while(left.length){
+      let bi=0,bd=Infinity;
+      left.forEach((p,i)=>{ const d=distance(cur.lat,cur.lng,p.lat,p.lng); if(d<bd){bd=d;bi=i;} });
+      cur=left.splice(bi,1)[0]; coords.push([cur.lat,cur.lng]);
+    }
+    return coords;
+  }
+  // no location yet → fixed geographic stroll order
+  return ROUTE_ORDER.map(id=>place(id)).filter(p=>p&&pool.includes(p)).map(p=>[p.lat,p.lng]);
+}
 function drawRoute(){
-  if(!map || routeLine) return;
-  const pts=ROUTE_ORDER.map(id=>place(id)).filter(Boolean).map(p=>[p.lat,p.lng]);
-  routeLine=L.polyline(pts,{color:"#ef6f5c",weight:4,opacity:.75,className:"routeLine",lineJoin:"round"}).addTo(map);
+  if(!map) return;
+  if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
+  const coords=computeRoute();
+  if(coords.length<2) return;
+  routeLine=L.polyline(coords,{color:"#ef6f5c",weight:4,opacity:.75,className:"routeLine",lineJoin:"round"}).addTo(map);
   routeLine.bringToBack();
 }
 function updateNearest(){
@@ -823,6 +849,7 @@ function updateNearest(){
     const ic=L.divIcon({className:"",html:'<div class="nearestPin">⮟</div>',iconSize:[26,26],iconAnchor:[13,40]});
     nearestMarker=L.marker([target.lat,target.lng],{icon:ic,zIndexOffset:800,interactive:false}).addTo(map);
   }
+  drawRoute();   // keep the route starting from the user's current position
 }
 
 /* ============================================================
@@ -872,11 +899,6 @@ function openPanel(id){
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=walking${origin?`&origin=${origin}`:""}`,"_blank");
   };
 
-  stopStory();
-  const audio=document.getElementById("pAudio");
-  audio.textContent=t("b_play");
-  audio.onclick=()=>toggleStory(id);
-
   updateCheckBtn();
   document.getElementById("panel").classList.add("open");
 
@@ -884,7 +906,6 @@ function openPanel(id){
   renderList();
 }
 function closePanel(){
-  stopStory();
   document.getElementById("panel").classList.remove("open");
   activeId=null; refreshMarkers(); renderList();
 }
@@ -1329,13 +1350,17 @@ if(!I18N[lang]) lang="en";
 function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
 function pdesc(id){ const p=place(id); return lang==="en" ? p.desc : ((PTX[id]&&PTX[id].desc&&PTX[id].desc[lang])||p.desc); }
 function pknown(id){ const p=place(id); return lang==="en" ? p.known : ((PTX[id]&&PTX[id].known&&PTX[id].known[lang])||p.known); }
-function pstory(id){ const s=PTX[id]&&PTX[id].story; return (s&&(s[lang]||s.en))||place(id).desc; }
-function setLang(l){ lang = I18N[l]?l:"en"; state.lang=lang; save(); stopStory(); applyLang(); }
+function setLang(l){ lang = I18N[l]?l:"en"; state.lang=lang; save(); applyLang(); }
 function applyLang(){
   document.documentElement.lang = ({zh:"zh-CN",ja:"ja",ms:"ms",en:"en"})[lang];
   const T=(sel,key)=>{ const el=document.querySelector(sel); if(el) el.textContent=t(key); };
   const tabs=document.querySelectorAll("#tabs button");
-  if(tabs[0]){tabs[0].textContent=t("tab_home");tabs[1].textContent=t("tab_map");tabs[2].textContent=t("tab_rewards");tabs[3].textContent=t("tab_qr");}
+  const keys=["tab_home","tab_map","tab_rewards","tab_qr"];
+  tabs.forEach((btn,i)=>{
+    const label=t(keys[i]); const sp=label.indexOf(" ");
+    const emo=sp>0?label.slice(0,sp):label, txt=sp>0?label.slice(sp+1):"";
+    btn.innerHTML=`<span class="tEmo">${emo}</span><span class="tTxt">${txt}</span>`;
+  });
   T(".homeTitle","home_title"); T(".homeTag","home_tag");
   T("#prefQ","pref_q"); T("#prefHint","pref_hint");
   const pf=document.querySelectorAll(".prefBtns button"); if(pf[0]){pf[0].textContent=t("pref_food");pf[1].textContent=t("pref_culture");pf[2].textContent=t("pref_both");}
@@ -1355,29 +1380,7 @@ function applyLang(){
   if(document.body.classList.contains("view-rewards")) renderRewards();
   if(typeof lastPref!=="undefined" && lastPref && document.getElementById("recSection") && document.getElementById("recSection").style.display!=="none") choosePref(lastPref);
   if(activeId) openPanel(activeId);
-  updateAudioBtn();
 }
-
-/* ============================================================
-   AUDIO STORIES  (browser text-to-speech)
-   ============================================================ */
-const VOICE_LANG={en:"en-US",zh:"zh-CN",ms:"ms-MY",ja:"ja-JP"};
-let speaking=false;
-function playStory(id){
-  if(!("speechSynthesis" in window)){ toast("Audio narration isn't supported on this browser."); return; }
-  stopStory();
-  const u=new SpeechSynthesisUtterance(pstory(id));
-  u.lang=VOICE_LANG[lang]||"en-US"; u.rate=0.98;
-  const vs=speechSynthesis.getVoices();
-  const v=vs.find(x=>x.lang && x.lang.toLowerCase().startsWith(lang));
-  if(v) u.voice=v;
-  u.onend=()=>{ speaking=false; updateAudioBtn(); };
-  u.onerror=()=>{ speaking=false; updateAudioBtn(); };
-  speaking=true; speechSynthesis.speak(u); updateAudioBtn();
-}
-function stopStory(){ if("speechSynthesis" in window) speechSynthesis.cancel(); speaking=false; updateAudioBtn(); }
-function toggleStory(id){ speaking ? stopStory() : playStory(id); }
-function updateAudioBtn(){ const b=document.getElementById("pAudio"); if(b) b.textContent = speaking ? t("b_stop") : t("b_play"); }
 
 /* ============================================================
    SIGN-IN + CROSS-DEVICE SYNC
@@ -1389,7 +1392,10 @@ function signIn(){
   state.user={name:n,email:e}; save(); updateAccountUI();
   toast("Saved! Your stamps are linked to "+e);
 }
-function signOut(){ state.user=null; save(); updateAccountUI(); }
+function signOut(){
+  if(!confirm("Sign out of this account? Your stamps stay saved on this device.")) return;
+  state.user=null; save(); updateAccountUI(); toast("Signed out.");
+}
 function updateAccountUI(){
   const signed = state.user && state.user.email;
   const box=document.getElementById("signinBox"); const acc=document.getElementById("accountBox");
@@ -1649,6 +1655,8 @@ document.querySelectorAll(".filters button").forEach(b=>{
 document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
 document.getElementById("rewardChip").onclick=()=>showView("rewards");
 document.getElementById("pointsChip").onclick=()=>showView("rewards");
+document.getElementById("accountChip").style.cursor="pointer";
+document.getElementById("accountChip").onclick=()=>showView("rewards");
 document.getElementById("gps").onclick=startGPS;
 document.getElementById("listToggle").onclick=()=>document.getElementById("sidebar").classList.toggle("open");
 document.getElementById("listClose").onclick=()=>document.getElementById("sidebar").classList.remove("open");
@@ -1669,7 +1677,6 @@ document.getElementById("resetBtn").onclick=()=>{
 renderList(); updateScore(); renderRewards();
 updateAccountUI();
 applyLang();
-if("speechSynthesis" in window){ speechSynthesis.onvoiceschanged=()=>{}; speechSynthesis.getVoices(); }
 startGPS();   // begin tracking the visitor so the map follows them & geofence works
 
 /* load the free OpenStreetMap map (Leaflet) */
