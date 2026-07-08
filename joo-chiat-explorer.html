@@ -232,12 +232,38 @@
   /* ---------- Home / landing ---------- */
   .homeview {
     position:absolute; top:62px; left:0; right:0; bottom:0; z-index:26;
-    overflow-y:auto; background:
-      radial-gradient(1200px 400px at 50% -80px, rgba(15,155,142,.18), transparent 60%),
+    overflow-y:auto; background-color:#fdf1e6;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%230f9b8e' stroke-opacity='0.13' stroke-width='2'%3E%3Ccircle cx='42' cy='42' r='15'/%3E%3Ccircle cx='42' cy='11' r='9'/%3E%3Ccircle cx='42' cy='73' r='9'/%3E%3Ccircle cx='11' cy='42' r='9'/%3E%3Ccircle cx='73' cy='42' r='9'/%3E%3C/g%3E%3Cg fill='%23ef6f5c' fill-opacity='0.11'%3E%3Ccircle cx='42' cy='42' r='4.5'/%3E%3Ccircle cx='0' cy='0' r='3.5'/%3E%3Ccircle cx='84' cy='0' r='3.5'/%3E%3Ccircle cx='0' cy='84' r='3.5'/%3E%3Ccircle cx='84' cy='84' r='3.5'/%3E%3C/g%3E%3Cg fill='%23f4b942' fill-opacity='0.13'%3E%3Ccircle cx='21' cy='21' r='2.5'/%3E%3Ccircle cx='63' cy='21' r='2.5'/%3E%3Ccircle cx='21' cy='63' r='2.5'/%3E%3Ccircle cx='63' cy='63' r='2.5'/%3E%3C/g%3E%3C/svg%3E"),
+      radial-gradient(1200px 420px at 50% -90px, rgba(15,155,142,.20), transparent 62%),
       linear-gradient(180deg,#fff8f0 0%, #fdf1e6 100%);
-    animation: fadeUp .28s ease;
+    background-repeat: repeat, no-repeat, no-repeat;
+    background-size: 84px 84px, auto, auto;
+    background-position: 0 0, 0 0, 0 0;
+    animation: fadeUp .28s ease, bgdrift 70s linear infinite;
   }
+  /* live-wallpaper drift: only the tile layer moves, gradients stay put */
+  @keyframes bgdrift { to { background-position: 84px 84px, 0 0, 0 0; } }
   .homeInner { max-width:640px; margin:0 auto; padding:30px 20px 60px; text-align:center; }
+  /* decorative Peranakan dot-divider under the tagline */
+  .homeTag::after {
+    content:""; display:block; width:130px; height:12px; margin:16px auto 0;
+    background-image: radial-gradient(circle, var(--peranakan-coral) 2.2px, transparent 2.6px);
+    background-size: 18px 12px; background-repeat:repeat-x; opacity:.55;
+  }
+  /* Rewards page: same drifting Peranakan wallpaper */
+  .rewards {
+    background-color:#fdf1e6;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%230f9b8e' stroke-opacity='0.13' stroke-width='2'%3E%3Ccircle cx='42' cy='42' r='15'/%3E%3Ccircle cx='42' cy='11' r='9'/%3E%3Ccircle cx='42' cy='73' r='9'/%3E%3Ccircle cx='11' cy='42' r='9'/%3E%3Ccircle cx='73' cy='42' r='9'/%3E%3C/g%3E%3Cg fill='%23ef6f5c' fill-opacity='0.11'%3E%3Ccircle cx='42' cy='42' r='4.5'/%3E%3Ccircle cx='0' cy='0' r='3.5'/%3E%3Ccircle cx='84' cy='0' r='3.5'/%3E%3Ccircle cx='0' cy='84' r='3.5'/%3E%3Ccircle cx='84' cy='84' r='3.5'/%3E%3C/g%3E%3Cg fill='%23f4b942' fill-opacity='0.13'%3E%3Ccircle cx='21' cy='21' r='2.5'/%3E%3Ccircle cx='63' cy='21' r='2.5'/%3E%3Ccircle cx='21' cy='63' r='2.5'/%3E%3Ccircle cx='63' cy='63' r='2.5'/%3E%3C/g%3E%3C/svg%3E"),
+      radial-gradient(1200px 420px at 50% -90px, rgba(15,155,142,.16), transparent 62%),
+      linear-gradient(180deg,#fff8f0 0%, #fdf1e6 100%);
+    background-repeat: repeat, no-repeat, no-repeat;
+    background-size: 84px 84px, auto, auto;
+    background-position: 0 0, 0 0, 0 0;
+    animation: fadeUp .28s ease, bgdrift 70s linear infinite;
+  }
+  .rewards .rbody { background:transparent; }
   .homeLogo { width:150px; height:150px; border-radius:50%; object-fit:cover;
     box-shadow:0 10px 30px rgba(0,0,0,.18); background:#fff; }
   .homeTitle { font-size:26px; font-weight:800; margin-top:18px; color:var(--peranakan-teal); }
@@ -394,6 +420,10 @@
     padding:9px 14px; border-radius:999px; background:#fff; color:#9D5B25; border:2px solid #9D5B25;
     font-size:13px; font-weight:700; cursor:pointer; box-shadow:var(--shadow); display:flex; align-items:center; gap:6px; }
   #mrtToggle.on { background:#9D5B25; color:#fff; }
+  #locateBtn { position:absolute; bottom:88px; right:14px; z-index:1100;
+    width:46px; height:46px; border-radius:50%; background:#fff; color:#1a73e8; border:none;
+    font-size:20px; box-shadow:var(--shadow); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  #locateBtn:hover { background:#eef3ff; }
   .mrt-marker { width:26px; height:26px; border-radius:8px; background:#9D5B25; color:#fff;
     display:flex; align-items:center; justify-content:center; font-size:14px; border:2px solid #fff;
     box-shadow:0 2px 6px rgba(0,0,0,.35); }
@@ -558,6 +588,7 @@
     </div>
     <div id="gps"><span class="dot"></span><span id="gpsText">Enable my location</span></div>
     <button id="mrtToggle" onclick="toggleMrt()">🚇 MRT</button>
+    <button id="locateBtn" onclick="locateMe()" title="Go to my location" aria-label="Go to my location">📍</button>
     <button id="listToggle">📋 Landmarks</button>
   </div>
 </div>
@@ -909,6 +940,15 @@ function setMrt(on){
   if(on){ mrtLayer.addTo(map); } else if(map.hasLayer(mrtLayer)){ map.removeLayer(mrtLayer); }
 }
 function toggleMrt(){ setMrt(!mrtOn); }
+
+/* Centre the map on the visitor's current location */
+let centerOnFix=false;
+function locateMe(){
+  if(userPos && map){ map.setView([userPos.lat,userPos.lng], 17, {animate:true}); return; }
+  centerOnFix=true;            // pan as soon as we get the first GPS fix
+  startGPS();
+  toast("📡 Finding your location…");
+}
 
 /* ============================================================
    6.  SIDEBAR LIST
@@ -1702,6 +1742,7 @@ function startGPS(){
     }
     if(activeId) updateCheckBtn();
     updateNearest();
+    if(centerOnFix && map){ map.setView([userPos.lat,userPos.lng], 17, {animate:true}); centerOnFix=false; }
     // NOTE: we deliberately do NOT auto check-in on proximity.
     // A stamp is only granted when the visitor scans the QR code or taps
     // the check-in button — and only if this GPS position confirms they're
