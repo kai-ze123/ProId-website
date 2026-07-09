@@ -287,6 +287,17 @@
   .recCard p { font-size:12.5px; color:#857c6e; margin-top:3px; line-height:1.4; }
   .recCard .recGo { align-self:center; margin-left:auto; background:var(--peranakan-teal); color:#fff; border:none; border-radius:10px; padding:9px 12px; font-weight:700; font-size:12.5px; cursor:pointer; white-space:nowrap; }
   .homeStart { margin-top:8px; width:100%; padding:15px; border:none; border-radius:14px; background:linear-gradient(100deg,var(--peranakan-coral),#d94f3c); color:#fff; font-weight:800; font-size:15.5px; cursor:pointer; box-shadow:0 6px 18px rgba(239,111,92,.35); }
+  /* rotating fun-fact card */
+  .factCard { margin-top:28px; background:linear-gradient(135deg,#fff6e2,#fde9d6);
+    border:1px solid #f0d9ae; border-left:6px solid var(--peranakan-yellow);
+    border-radius:16px; padding:18px 18px 16px; text-align:left; box-shadow:0 6px 18px rgba(244,185,66,.18); }
+  .factHead { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#b8860b; }
+  .factBody { font-size:15px; line-height:1.6; color:#4a463e; margin-top:8px; min-height:48px; transition:opacity .25s; }
+  .factWho { font-size:12px; font-weight:700; color:#8a7a5e; margin-top:8px; }
+  .factBtn { margin-top:12px; background:#fff; border:1.5px solid #e6cf9e; color:#8a6d1f;
+    border-radius:999px; padding:7px 14px; font-weight:700; font-size:12.5px; cursor:pointer; }
+  .factBtn:hover { background:#fffaf0; }
+
   .homeHow { margin-top:30px; font-size:13px; color:#6b6255; background:#f0fbf9; border:1px solid #c8ece7; border-radius:12px; padding:12px 14px; }
   .homeSkip { margin-top:16px; background:none; border:none; color:var(--peranakan-teal); font-weight:700; font-size:13.5px; cursor:pointer; text-decoration:underline; }
   @media (max-width:430px){ .homeLogo{ width:120px;height:120px; } .homeTitle{ font-size:22px; } }
@@ -442,7 +453,7 @@
 
   /* ---------- Mobile ---------- */
   @media (max-width: 780px) {
-    aside { position:absolute; left:0; top:0; bottom:0; width:82vw; max-width:320px; transform:translateX(-105%);
+    aside { position:fixed; left:0; top:62px; bottom:0; width:82vw; max-width:320px; transform:translateX(-105%);
       transition:transform .3s; box-shadow: var(--shadow); z-index:22; }
     aside.open { transform:translateX(0); }
     .panel, .rewards, .qrview { width:100%; max-width:100vw; }
@@ -477,6 +488,7 @@
     font-size:13px; font-weight:700; gap:14px; }
   #mstats b { color:var(--peranakan-coral); }
   @media (max-width:780px){ #mstats { display:flex; } }
+
   /* Leaflet emoji markers */
   .poi-marker {
     width:38px; height:38px; border-radius:50%; display:flex; align-items:center;
@@ -485,6 +497,10 @@
   }
   .poi-marker.active { transform:scale(1.22); border-width:4px; }
   .poi-marker.visited { background:#34b37a !important; }
+  .poi-marker { position:relative; }
+  .poi-num { position:absolute; top:-7px; right:-7px; min-width:18px; height:18px; border-radius:9px;
+    background:#23272e; color:#fff; font-size:11px; font-weight:800; line-height:18px; text-align:center;
+    border:2px solid #fff; padding:0 3px; box-shadow:0 1px 3px rgba(0,0,0,.4); }
   .user-dot {
     width:16px;height:16px;border-radius:50%;background:#1a73e8;border:3px solid #fff;
     box-shadow:0 0 0 6px rgba(26,115,232,.25);
@@ -562,6 +578,13 @@
       </div>
       <div id="recList"></div>
       <button class="homeStart" onclick="showView('map')">Start exploring the map →</button>
+    </div>
+
+    <div class="factCard" id="homeFactCard">
+      <div class="factHead">💡 <span id="homeFactLabel">Did you know?</span></div>
+      <div class="factBody" id="homeFactText"></div>
+      <div class="factWho" id="homeFactWho"></div>
+      <button class="factBtn" onclick="shuffleHomeFact()">↻ Another fact</button>
     </div>
 
     <div class="homeHow">🎟️ Scan the QR code at each spot to check in and earn <b>$5 food vouchers</b>.</div>
@@ -711,7 +734,7 @@
 <!-- QR generation + camera scanner libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.min.js"></script>
 <script>
 /* ============================================================
    1.  CONFIGURATION  — free map, no API key required
@@ -836,13 +859,21 @@ function place(id){ return PLACES.find(p=>p.id===id); }
 let map, markers={}, userMarker=null, userPos=null, activeId=null, currentFilter="all";
 const CENTER = [1.3095, 103.9030];
 
+let routeIndex = {};   // placeId -> stop number along the route
 function markerIcon(p){
   const visited = state.visited.includes(p.id);
   const cls = "poi-marker"+(visited?" visited":"")+(activeId===p.id?" active":"");
+  const n = routeIndex[p.id];
+  const badge = n ? `<span class="poi-num">${n}</span>` : "";
   return L.divIcon({
-    className:"", html:`<div class="${cls}" style="background:${p.color}">${p.icon}</div>`,
+    className:"", html:`<div class="${cls}" style="background:${p.color}">${p.icon}${badge}</div>`,
     iconSize:[38,38], iconAnchor:[19,19]
   });
+}
+function setRouteIndex(ordered){
+  routeIndex = {};
+  ordered.forEach((p,i)=>{ routeIndex[p.id]=i+1; });
+  refreshMarkers();
 }
 
 function initMap(){
@@ -882,7 +913,7 @@ function refreshMarkers(){
    WALKING ROUTE + NEAREST-STOP ARROW
    ============================================================ */
 const ROUTE_ORDER = ["koonseng","chinmeechin","kuanimtng","intan","guanhoesoon","senpaga","rumahbebe","kimchoo","laksa","birdsofparadise","katongantique"];
-let routeLine=null, nearestMarker=null, hubMarker=null;
+let routeLine=null, routeArrows=null, nearestMarker=null, hubMarker=null;
 
 /* ---- Warwick Inc Hub: the official start point of the trail.
    Sited in unused 2nd-floor shophouse space (exact unit still TBC).
@@ -917,32 +948,218 @@ function toggleRouteStart(){ setRouteStart(routeStart==="hub" ? "me" : "hub"); }
 
 /* Build the walking path from the chosen start point, connecting the
    remaining stops nearest-first. */
-function computeRoute(){
+/* The stops to visit and where the walk begins */
+function routeInputs(){
   const shown = PLACES.filter(p=> currentFilter==="all"||currentFilter===p.cat);
   const remaining = shown.filter(p=>!state.visited.includes(p.id));
   const pool = (remaining.length ? remaining : shown).slice();
-  if(!pool.length) return [];
-  // start at the visitor only if they chose that AND we have a GPS fix
   const origin = (routeStart==="me" && userPos)
     ? {lat:userPos.lat, lng:userPos.lng}
     : {lat:HUB.lat,     lng:HUB.lng};
-  const coords=[[origin.lat,origin.lng]];
-  let cur=origin;
-  const left=pool.slice();
+  return {origin, pool};
+}
+function routeSig(origin, pool){
+  return origin.lat.toFixed(4)+","+origin.lng.toFixed(4)+"|"+pool.map(p=>p.id).join(",");
+}
+/* greedy nearest-neighbour on straight-line distance (used as a fallback) */
+function greedyOrder(pool, origin){
+  let order=[]; let cur=origin; const left=pool.slice();
   while(left.length){
     let bi=0,bd=Infinity;
     left.forEach((p,i)=>{ const d=distance(cur.lat,cur.lng,p.lat,p.lng); if(d<bd){bd=d;bi=i;} });
-    cur=left.splice(bi,1)[0]; coords.push([cur.lat,cur.lng]);
+    cur=left.splice(bi,1)[0]; order.push(cur);
   }
-  return coords;
+  return order;
 }
+/* order the stops using REAL walking distances from the routing server,
+   so the path stops doubling back down streets it already used */
+function orderByMatrix(dist, n){
+  let unvisited=[]; for(let i=1;i<n;i++) unvisited.push(i);
+  let order=[], cur=0;
+  while(unvisited.length){
+    let bi=0,bd=Infinity;
+    unvisited.forEach((idx,k)=>{ const d=dist[cur][idx]; if(d!=null && d<bd){bd=d;bi=k;} });
+    cur=unvisited.splice(bi,1)[0]; order.push(cur);
+  }
+  const total=(arr)=>{ let s=dist[0][arr[0]]; for(let i=0;i<arr.length-1;i++) s+=dist[arr[i]][arr[i+1]]; return s; };
+  let best=order.slice(), bestLen=total(best), improved=true, guard=0;
+  while(improved && guard++<40){
+    improved=false;
+    for(let i=0;i<best.length-1;i++){
+      for(let k=i+1;k<best.length;k++){
+        const cand=best.slice(0,i).concat(best.slice(i,k+1).reverse(), best.slice(k+1));
+        const len=total(cand);
+        if(len < bestLen-0.5){ best=cand; bestLen=len; improved=true; }
+      }
+    }
+  }
+  return best;
+}
+
+/* 2-opt: repeatedly reverse a sub-path if it shortens the total walk.
+   Removes the crossings/backtracking that greedy ordering leaves behind. */
+function twoOpt(stops, origin){
+  if(stops.length<3) return stops;
+  const d=(a,b)=>distance(a.lat,a.lng,b.lat,b.lng);
+  const total=(arr)=>{ let s=d(origin,arr[0]); for(let i=0;i<arr.length-1;i++) s+=d(arr[i],arr[i+1]); return s; };
+  let best=stops.slice(), bestLen=total(best), improved=true, guard=0;
+  while(improved && guard++<40){
+    improved=false;
+    for(let i=0;i<best.length-1;i++){
+      for(let k=i+1;k<best.length;k++){
+        const cand=best.slice(0,i).concat(best.slice(i,k+1).reverse(), best.slice(k+1));
+        const len=total(cand);
+        if(len < bestLen-0.5){ best=cand; bestLen=len; improved=true; }
+      }
+    }
+  }
+  return best;
+}
+/* ---- Real PEDESTRIAN routing ----
+   Uses the public OSRM foot-profile server, so the path sticks to
+   footpaths and streets and will never route onto an expressway.
+   Optional: a free key from openrouteservice.org gives an alternative
+   pedestrian router. If the network fails we fall back to straight lines. */
+const OSRM_FOOT = "https://routing.openstreetmap.de/routed-foot";
+const ORS_KEY = "";
+
+async function fetchWalkingRoute(coords){
+  const lonlat = coords.map(c=>[c[1], c[0]]);      // [lng,lat] for the APIs
+  try{
+    if(ORS_KEY){
+      const r = await fetch("https://api.openrouteservice.org/v2/directions/foot-walking/geojson",{
+        method:"POST",
+        headers:{ "Authorization":ORS_KEY, "Content-Type":"application/json" },
+        body: JSON.stringify({ coordinates: lonlat })
+      });
+      if(!r.ok) throw 0;
+      const j = await r.json();
+      return j.features[0].geometry.coordinates.map(c=>[c[1],c[0]]);
+    }
+    const path = lonlat.map(c=>c[0].toFixed(6)+","+c[1].toFixed(6)).join(";");
+    const r = await fetch(`${OSRM_FOOT}/route/v1/driving/${path}?overview=full&geometries=geojson`);
+    if(!r.ok) throw 0;
+    const j = await r.json();
+    if(!j.routes || !j.routes[0]) throw 0;
+    return j.routes[0].geometry.coordinates.map(c=>[c[1],c[0]]);
+  }catch(e){ return null; }   // offline / rate-limited → keep straight lines
+}
+
+/* walking-distance matrix between origin + all stops, used to order them */
+async function fetchMatrix(points){
+  try{
+    const s = points.map(p=>p.lng.toFixed(6)+","+p.lat.toFixed(6)).join(";");
+    const r = await fetch(`${OSRM_FOOT}/table/v1/driving/${s}?annotations=distance`);
+    if(!r.ok) throw 0;
+    const j = await r.json();
+    if(!j.distances) throw 0;
+    return j.distances;
+  }catch(e){ return null; }
+}
+
+function clearRoute(){
+  if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
+  if(routeArrows){ map.removeLayer(routeArrows); routeArrows=null; }
+}
+
+/* Shift the path sideways by `metres`, perpendicular to the direction of
+   travel. Because the normal flips when the walk reverses, an out-and-back
+   leg down the same street lands on opposite sides — two parallel lines.
+   Offsetting the real coordinates (not just the drawing) keeps the direction
+   arrows sitting on the line. */
+function offsetPath(latlngs, metres){
+  const n = latlngs.length;
+  if(n < 2) return latlngs;
+  const R = 6378137, rad = Math.PI/180;
+  const ky = R*rad;                                   // metres per degree lat
+  const kx = Math.cos(latlngs[0][0]*rad)*R*rad;       // metres per degree lng
+  const P = latlngs.map(c=>({ x:c[1]*kx, y:c[0]*ky }));
+  const seg = (i)=>{                                   // unit left-normal of segment i→i+1
+    const dx=P[i+1].x-P[i].x, dy=P[i+1].y-P[i].y;
+    const len=Math.hypot(dx,dy)||1;
+    return { x:-dy/len, y:dx/len };
+  };
+  const out=[];
+  for(let i=0;i<n;i++){
+    let nx, ny;
+    if(i===0){ const a=seg(0); nx=a.x; ny=a.y; }
+    else if(i===n-1){ const a=seg(n-2); nx=a.x; ny=a.y; }
+    else {
+      const a=seg(i-1), b=seg(i);
+      nx=a.x+b.x; ny=a.y+b.y;
+      const l=Math.hypot(nx,ny);
+      if(l < 1e-6){ nx=b.x; ny=b.y; }                  // U-turn: use the outgoing normal
+      else { nx/=l; ny/=l; }
+    }
+    out.push([ (P[i].y + ny*metres)/ky, (P[i].x + nx*metres)/kx ]);
+  }
+  return out;
+}
+function paintRoute(latlngs, provisional){
+  clearRoute();
+  // nudge the path sideways so out-and-back legs draw as two parallel lines
+  const drawn = provisional ? latlngs : offsetPath(latlngs, 6);
+  routeLine = L.polyline(drawn,{
+    color:"#ef6f5c", weight:4, opacity: provisional?0.35:0.85,
+    className:"routeLine", lineJoin:"round"
+  }).addTo(map);
+  routeLine.bringToBack();
+  // small direction arrows sitting on the line (skipped on the faint provisional line)
+  if(!provisional && typeof L.polylineDecorator==="function"){
+    routeArrows = L.polylineDecorator(routeLine, {
+      patterns:[{
+        offset: 18, repeat: 65,
+        symbol: L.Symbol.arrowHead({
+          pixelSize: 7, headAngle: 60, polygon: true,
+          pathOptions:{ color:"#b8402a", fillColor:"#b8402a", fillOpacity:1, weight:0 }
+        })
+      }]
+    }).addTo(map);
+  }
+}
+
+/* cache the finished geometry so GPS ticks don't re-hit the routing server */
+const geomCache = {};
+let routeFetching = null;
+
+async function buildRoute(origin, pool, sig){
+  // 1) decide the visiting order using real walking distances when possible
+  let ordered;
+  const dist = await fetchMatrix([origin, ...pool]);
+  if(dist){
+    ordered = orderByMatrix(dist, pool.length+1).map(i=>pool[i-1]);
+  } else {
+    ordered = twoOpt(greedyOrder(pool, origin), origin);   // offline fallback
+  }
+  setRouteIndex(ordered);                                  // number the stops 1,2,3…
+  // 2) get the street-following geometry through those waypoints
+  const way = [origin, ...ordered].map(p=>[p.lat,p.lng]);
+  const geom = await fetchWalkingRoute(way);
+  geomCache[sig] = geom || way;
+  return geomCache[sig];
+}
+
 function drawRoute(){
   if(!map) return;
-  if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
-  const coords=computeRoute();
-  if(coords.length<2) return;
-  routeLine=L.polyline(coords,{color:"#ef6f5c",weight:4,opacity:.75,className:"routeLine",lineJoin:"round"}).addTo(map);
-  routeLine.bringToBack();
+  const {origin, pool} = routeInputs();
+  if(!pool.length){ clearRoute(); return; }
+  const sig = routeSig(origin, pool);
+
+  if(geomCache[sig]){ paintRoute(geomCache[sig], false); return; }
+
+  // instant feedback: faint straight line in a sensible order
+  const provOrder = twoOpt(greedyOrder(pool,origin), origin);
+  setRouteIndex(provOrder);
+  const prov = [[origin.lat,origin.lng], ...provOrder.map(p=>[p.lat,p.lng])];
+  paintRoute(prov, true);
+
+  if(routeFetching === sig) return;      // a request is already in flight
+  routeFetching = sig;
+  buildRoute(origin, pool, sig).then(geom=>{
+    routeFetching = null;
+    const cur = routeInputs();
+    if(routeSig(cur.origin, cur.pool) === sig) paintRoute(geom, false);   // still current?
+  }).catch(()=>{ routeFetching = null; });
 }
 function updateNearest(){
   if(!map) return;
@@ -1551,6 +1768,38 @@ const FACTS = {
 };
 function pfact(id){ const f=FACTS[id]; return f && (f[lang]||f.en); }
 
+/* ---- Rotating fun-fact card on the home page ---- */
+let factIdx = Math.floor(Math.random()*PLACES.length);
+let factTimer = null;
+function renderHomeFact(){
+  const p = PLACES[factIdx % PLACES.length]; if(!p) return;
+  const label = document.getElementById("homeFactLabel");
+  const body  = document.getElementById("homeFactText");
+  const who   = document.getElementById("homeFactWho");
+  if(!body) return;
+  if(label) label.textContent = FACT_LABEL[lang] || FACT_LABEL.en;
+  body.style.opacity = 0;
+  setTimeout(()=>{
+    body.textContent = pfact(p.id) || "";
+    if(who) who.textContent = `${p.icon} ${p.name}`;
+    body.style.opacity = 1;
+  }, 180);
+}
+function shuffleHomeFact(){
+  factIdx = (factIdx + 1 + Math.floor(Math.random()*(PLACES.length-1))) % PLACES.length;
+  renderHomeFact();
+  restartFactTimer();
+}
+function restartFactTimer(){
+  clearInterval(factTimer);
+  factTimer = setInterval(()=>{
+    if(document.body.classList.contains("view-home")){
+      factIdx = (factIdx+1) % PLACES.length;
+      renderHomeFact();
+    }
+  }, 8000);
+}
+
 let lang = (state.lang || (navigator.language||"en").slice(0,2).toLowerCase());
 if(!I18N[lang]) lang="en";
 function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
@@ -1579,6 +1828,7 @@ function applyLang(){
   const se=document.getElementById("siEmail"); if(se) se.placeholder=t("signin_email");
   const sel=document.getElementById("langSel"); if(sel) sel.value=lang;
   renderList();
+  renderHomeFact();
   if(document.body.classList.contains("view-rewards")) renderRewards();
   if(typeof lastPref!=="undefined" && lastPref && document.getElementById("recSection") && document.getElementById("recSection").style.display!=="none") choosePref(lastPref);
   if(activeId) openPanel(activeId);
@@ -1880,6 +2130,7 @@ document.getElementById("resetBtn").onclick=()=>{
 renderList(); updateScore(); renderRewards();
 updateAccountUI();
 applyLang();
+renderHomeFact(); restartFactTimer();   // rotating fun fact on the home page
 showView("home");   // always start on Home and sync the dropdown to it
 startGPS();   // begin tracking the visitor so the map follows them & geofence works
 
