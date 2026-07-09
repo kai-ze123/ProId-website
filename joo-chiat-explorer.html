@@ -83,7 +83,7 @@
   .score .chip:hover { background: rgba(255,255,255,.28); }
 
   /* ---------- Layout ---------- */
-  .app { display: flex; height: calc(100% - 62px); }
+  .app { display: flex; height: calc(100% - 62px); position: relative; }
 
   /* ---------- Sidebar ---------- */
   aside {
@@ -863,6 +863,8 @@ function initMap(){
   updateStartBtn();
   updateNearest();
   if(state.showMrt) setMrt(true);
+  // tapping the map closes the slide-out landmarks list
+  map.on("click", ()=>document.getElementById("sidebar").classList.remove("open"));
 }
 
 function refreshMarkers(){
