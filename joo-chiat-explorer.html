@@ -240,7 +240,7 @@
     background-repeat: repeat, no-repeat, no-repeat;
     background-size: 84px 84px, auto, auto;
     background-position: 0 0, 0 0, 0 0;
-    animation: fadeUp .28s ease, bgdrift 70s linear infinite;
+    animation: fadeUp .28s ease, bgdrift 30s linear infinite;
   }
   /* live-wallpaper drift: only the tile layer moves, gradients stay put */
   @keyframes bgdrift { to { background-position: 84px 84px, 0 0, 0 0; } }
@@ -261,7 +261,7 @@
     background-repeat: repeat, no-repeat, no-repeat;
     background-size: 84px 84px, auto, auto;
     background-position: 0 0, 0 0, 0 0;
-    animation: fadeUp .28s ease, bgdrift 70s linear infinite;
+    animation: fadeUp .28s ease, bgdrift 30s linear infinite;
   }
   .rewards .rbody { background:transparent; }
   .homeLogo { width:150px; height:150px; border-radius:50%; object-fit:cover;
@@ -424,6 +424,18 @@
     width:46px; height:46px; border-radius:50%; background:#fff; color:#1a73e8; border:none;
     font-size:20px; box-shadow:var(--shadow); cursor:pointer; display:flex; align-items:center; justify-content:center; }
   #locateBtn:hover { background:#eef3ff; }
+
+  /* Trail start point (hub) + start-mode toggle */
+  #startToggle { position:absolute; bottom:104px; left:16px; z-index:1100;
+    padding:9px 14px; border-radius:999px; background:#fff; color:var(--peranakan-teal);
+    border:2px solid var(--peranakan-teal); font-size:13px; font-weight:700; cursor:pointer;
+    box-shadow:var(--shadow); display:flex; align-items:center; gap:6px; }
+  #startToggle.me { color:#1a73e8; border-color:#1a73e8; }
+  .hub-marker { width:34px; height:34px; border-radius:50%; background:var(--peranakan-teal); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:17px; border:3px solid #fff;
+    box-shadow:0 2px 8px rgba(0,0,0,.4); animation:hubPulse 2s ease-in-out infinite; }
+  @keyframes hubPulse { 0%,100%{ box-shadow:0 2px 8px rgba(0,0,0,.4), 0 0 0 0 rgba(15,155,142,.45); }
+                        70%{ box-shadow:0 2px 8px rgba(0,0,0,.4), 0 0 0 12px rgba(15,155,142,0); } }
   .mrt-marker { width:26px; height:26px; border-radius:8px; background:#9D5B25; color:#fff;
     display:flex; align-items:center; justify-content:center; font-size:14px; border:2px solid #fff;
     box-shadow:0 2px 6px rgba(0,0,0,.35); }
@@ -588,6 +600,7 @@
     </div>
     <div id="gps"><span class="dot"></span><span id="gpsText">Enable my location</span></div>
     <button id="mrtToggle" onclick="toggleMrt()">🚇 MRT</button>
+    <button id="startToggle" onclick="toggleRouteStart()" title="Where the trail route begins">🏁 Start: Hub</button>
     <button id="locateBtn" onclick="locateMe()" title="Go to my location" aria-label="Go to my location">📍</button>
     <button id="listToggle">📋 Landmarks</button>
   </div>
@@ -846,6 +859,8 @@ function initMap(){
     markers[p.id]=m;
   });
   refreshMarkers();
+  addHubMarker();
+  updateStartBtn();
   updateNearest();
   if(state.showMrt) setMrt(true);
 }
@@ -865,27 +880,59 @@ function refreshMarkers(){
    WALKING ROUTE + NEAREST-STOP ARROW
    ============================================================ */
 const ROUTE_ORDER = ["koonseng","chinmeechin","kuanimtng","intan","guanhoesoon","senpaga","rumahbebe","kimchoo","laksa","birdsofparadise","katongantique"];
-let routeLine=null, nearestMarker=null;
-/* Build the walking path. If we know the user's location, the route STARTS
-   at the user and connects the remaining stops nearest-first, so they can
-   begin with whichever landmark is closest to them. */
+let routeLine=null, nearestMarker=null, hubMarker=null;
+
+/* ---- Warwick Inc Hub: the official start point of the trail.
+   Sited in unused 2nd-floor shophouse space (exact unit still TBC).
+   Update lat/lng below once the venue is confirmed. ---- */
+const HUB = {
+  name:"Warwick Inc Hub — Start here",
+  addr:"2nd-floor shophouse, Joo Chiat Rd (exact unit TBC)",
+  lat:1.31050, lng:103.90130
+};
+/* "hub" = tour starts at the hub (default) · "me" = starts at the visitor */
+let routeStart = (state.routeStart==="me") ? "me" : "hub";
+
+function addHubMarker(){
+  if(!map || hubMarker) return;
+  const ic=L.divIcon({className:"",html:'<div class="hub-marker">🏁</div>',iconSize:[34,34],iconAnchor:[17,17]});
+  hubMarker=L.marker([HUB.lat,HUB.lng],{icon:ic,title:HUB.name,zIndexOffset:700}).addTo(map);
+  hubMarker.bindPopup(`<b>🏁 ${HUB.name}</b><br>${HUB.addr}<br><i>Scan the START QR code here.</i>`);
+}
+function updateStartBtn(){
+  const b=document.getElementById("startToggle"); if(!b) return;
+  b.textContent = routeStart==="hub" ? "🏁 Start: Hub" : "📍 Start: Me";
+  b.classList.toggle("me", routeStart==="me");
+}
+function setRouteStart(mode){
+  routeStart = (mode==="me") ? "me" : "hub";
+  state.routeStart=routeStart; save();
+  updateStartBtn();
+  if(routeStart==="me" && !userPos){ toast("📡 Turn on location to start from where you are."); startGPS(); }
+  if(map) drawRoute();
+}
+function toggleRouteStart(){ setRouteStart(routeStart==="hub" ? "me" : "hub"); }
+
+/* Build the walking path from the chosen start point, connecting the
+   remaining stops nearest-first. */
 function computeRoute(){
   const shown = PLACES.filter(p=> currentFilter==="all"||currentFilter===p.cat);
   const remaining = shown.filter(p=>!state.visited.includes(p.id));
   const pool = (remaining.length ? remaining : shown).slice();
-  if(userPos && pool.length){
-    const coords=[[userPos.lat,userPos.lng]];
-    let cur={lat:userPos.lat,lng:userPos.lng};
-    const left=pool.slice();
-    while(left.length){
-      let bi=0,bd=Infinity;
-      left.forEach((p,i)=>{ const d=distance(cur.lat,cur.lng,p.lat,p.lng); if(d<bd){bd=d;bi=i;} });
-      cur=left.splice(bi,1)[0]; coords.push([cur.lat,cur.lng]);
-    }
-    return coords;
+  if(!pool.length) return [];
+  // start at the visitor only if they chose that AND we have a GPS fix
+  const origin = (routeStart==="me" && userPos)
+    ? {lat:userPos.lat, lng:userPos.lng}
+    : {lat:HUB.lat,     lng:HUB.lng};
+  const coords=[[origin.lat,origin.lng]];
+  let cur=origin;
+  const left=pool.slice();
+  while(left.length){
+    let bi=0,bd=Infinity;
+    left.forEach((p,i)=>{ const d=distance(cur.lat,cur.lng,p.lat,p.lng); if(d<bd){bd=d;bi=i;} });
+    cur=left.splice(bi,1)[0]; coords.push([cur.lat,cur.lng]);
   }
-  // no location yet → fixed geographic stroll order
-  return ROUTE_ORDER.map(id=>place(id)).filter(p=>p&&pool.includes(p)).map(p=>[p.lat,p.lng]);
+  return coords;
 }
 function drawRoute(){
   if(!map) return;
