@@ -18,7 +18,8 @@
     --ink: #23272e;
     --paper: #fff8f0;
     --card: #ffffff;
-    --shadow: 0 8px 30px rgba(0,0,0,.12);
+    --shadow: 0 6px 24px rgba(35,25,15,.14);
+    --shadow-sm: 0 2px 8px rgba(35,25,15,.10);
     --food: #ef6f5c;
     --culture: #7a5cc4;
   }
@@ -165,7 +166,7 @@
   }
   .panel.open { transform: translateX(0); visibility: visible; }
   .panel .hero {
-    height: 180px; display:flex; align-items:flex-end; padding:14px;
+    height: 215px; display:flex; align-items:flex-end; padding:14px;
     color:#fff; position: relative; font-size: 60px; overflow:hidden;
   }
   .panel .hero #pHeroImg { display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
@@ -264,8 +265,8 @@
     animation: fadeUp .28s ease, bgdrift 30s linear infinite;
   }
   .rewards .rbody { background:transparent; }
-  .homeLogo { width:150px; height:150px; border-radius:50%; object-fit:cover;
-    box-shadow:0 10px 30px rgba(0,0,0,.18); background:#fff; }
+  .homeLogo { width:200px; height:200px; border-radius:50%; object-fit:cover;
+    box-shadow:0 12px 34px rgba(0,0,0,.2); background:#fff; }
   .homeTitle { font-size:26px; font-weight:800; margin-top:18px; color:var(--peranakan-teal); }
   .homeTag { font-size:14.5px; color:#6b6255; margin-top:8px; line-height:1.55; }
   .homeCard { background:#fff; border-radius:20px; box-shadow:var(--shadow); padding:22px 18px; margin-top:26px; }
@@ -300,7 +301,7 @@
 
   .homeHow { margin-top:30px; font-size:13px; color:#6b6255; background:#f0fbf9; border:1px solid #c8ece7; border-radius:12px; padding:12px 14px; }
   .homeSkip { margin-top:16px; background:none; border:none; color:var(--peranakan-teal); font-weight:700; font-size:13.5px; cursor:pointer; text-decoration:underline; }
-  @media (max-width:430px){ .homeLogo{ width:120px;height:120px; } .homeTitle{ font-size:22px; } }
+  @media (max-width:430px){ .homeLogo{ width:165px;height:165px; } .homeTitle{ font-size:22px; } }
   @keyframes fadeUp { from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
   .rewards .rhead {
     padding: 26px 20px; background: linear-gradient(120deg,var(--peranakan-yellow),var(--peranakan-coral));
@@ -314,8 +315,11 @@
   .rewards .rbody { padding:22px; overflow-y:auto; flex:1; max-width:760px; width:100%; margin:0 auto; }
   @media (min-width:781px){ .badgeGrid{ grid-template-columns:repeat(3,1fr) !important; } }
   .progWrap { margin-bottom:20px; }
-  .progBar { height:14px; background:#eee; border-radius:999px; overflow:hidden; margin-top:8px; }
-  .progFill { height:100%; width:0; background:linear-gradient(90deg,var(--peranakan-teal),var(--peranakan-yellow)); transition:width .5s; }
+  .progBar { height:14px; background:#ece5d8; border-radius:999px; overflow:hidden; margin-top:8px;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.08); }
+  .progFill { height:100%; width:0; border-radius:999px; transition:width .6s cubic-bezier(.4,0,.2,1);
+    background:linear-gradient(90deg,var(--peranakan-teal),var(--peranakan-yellow),var(--peranakan-coral));
+    box-shadow:0 0 10px rgba(244,185,66,.5); }
   .badgeGrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px; }
   .badge {
     background:#fff; border:1px solid #eee; border-radius:14px; padding:14px 10px;
@@ -371,6 +375,52 @@
   .qrCard .qrTag { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; margin-top:10px; text-transform:uppercase; }
   .qrPrintBtn { margin:2px 0 22px; padding:11px 20px; background:var(--peranakan-teal); color:#fff; border:none; border-radius:11px; font-weight:700; cursor:pointer; font-size:14px; }
 
+  /* Full-screen photo viewer */
+  #lightbox { position:fixed; inset:0; background:rgba(10,8,6,.94); z-index:1500;
+    display:none; align-items:center; justify-content:center; }
+  #lightbox.open { display:flex; }
+  #lbImg { max-width:94vw; max-height:88vh; border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  .lbNav { position:absolute; top:50%; transform:translateY(-50%); width:48px; height:48px;
+    border-radius:50%; border:none; background:rgba(255,255,255,.16); color:#fff; font-size:28px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .18s; }
+  .lbNav:hover { background:rgba(255,255,255,.3); }
+  .lbNav.prev { left:18px; } .lbNav.next { right:18px; }
+  .lbClose { position:absolute; top:18px; right:18px; width:42px; height:42px; border-radius:50%;
+    border:none; background:rgba(255,255,255,.16); color:#fff; font-size:19px; cursor:pointer; }
+  .lbCount { position:absolute; bottom:22px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,.55); color:#fff; font-size:12.5px; font-weight:600; padding:5px 13px; border-radius:999px; }
+  .panel .hero #pHeroImg { cursor:zoom-in; }
+  @media (max-width:600px){ .lbNav{ width:40px;height:40px;font-size:23px; } .lbNav.prev{left:8px;} .lbNav.next{right:8px;} }
+
+  /* Route planner */
+  #planModal { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1400;
+    display:none; align-items:center; justify-content:center; padding:16px; }
+  #planModal.open { display:flex; }
+  .planBox { background:#fff; border-radius:18px; width:min(94vw,460px); max-height:88vh;
+    display:flex; flex-direction:column; overflow:hidden; box-shadow:var(--shadow); }
+  .planHead { display:flex; align-items:center; justify-content:space-between; padding:16px 18px;
+    background:linear-gradient(100deg,var(--peranakan-teal),#0c7d72); color:#fff; font-size:17px; }
+  .planHead button { width:32px;height:32px;border-radius:50%;border:none;background:rgba(0,0,0,.25);color:#fff;font-size:16px;cursor:pointer; }
+  .planQuick { display:flex; gap:6px; flex-wrap:wrap; padding:14px 16px 6px; }
+  .planQuick button { flex:1 1 auto; padding:8px 10px; border:1px solid #e0d7c8; background:#faf6ef;
+    border-radius:9px; font-size:12.5px; font-weight:700; color:#6b6255; cursor:pointer; white-space:nowrap; }
+  .planQuick button:hover { background:#f1ece2; }
+  .planOpt { display:flex; align-items:center; gap:9px; padding:12px 16px 2px; font-size:13.5px; font-weight:700; color:var(--ink); cursor:pointer; }
+  .planOpt input { width:17px; height:17px; }
+  .planHint { padding:0 16px 8px; font-size:11.5px; color:#8a8172; }
+  .planList { overflow-y:auto; flex:1; padding:6px 12px 12px; }
+  .planRow { display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:11px; border:1px solid transparent; }
+  .planRow:hover { background:#fbf5ec; }
+  .planRow.off { opacity:.45; }
+  .planRow input[type=checkbox] { width:18px; height:18px; flex-shrink:0; }
+  .planRow .pIcon { width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;flex-shrink:0; }
+  .planRow .pName { flex:1; min-width:0; font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .planRow .pOrd { display:flex; gap:3px; }
+  .planRow .pOrd button { width:26px;height:26px;border-radius:7px;border:1px solid #e0d7c8;background:#fff;cursor:pointer;font-size:12px;color:#6b6255; }
+  .planRow .pOrd button:disabled { opacity:.3; cursor:default; }
+  .planApply { margin:0; padding:15px; border:none; background:linear-gradient(100deg,var(--peranakan-coral),#d94f3c);
+    color:#fff; font-weight:800; font-size:15px; cursor:pointer; }
+
   /* Scanner modal */
   #scanModal { position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:70; display:none; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
   #scanModal.open { display:flex; }
@@ -417,39 +467,58 @@
   #testBanner button { background:#fff; color:#8a5cc4; border:none; border-radius:999px;
     padding:6px 14px; font-weight:800; font-size:12.5px; cursor:pointer; }
 
-  /* GPS status pill */
-  #gps {
-    position:absolute; bottom:16px; left:16px; z-index:1100;
-    background:#fff; border-radius:999px; padding:8px 14px; box-shadow:var(--shadow);
-    font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer;
-  }
-  #gps .dot { width:9px;height:9px;border-radius:50%; background:#bbb; }
+  /* ---------- Unified map control cluster ---------- */
+  #mapCtrl { position:absolute; bottom:16px; left:16px; z-index:1100; display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
+  #ctrlBtn { width:48px; height:48px; border-radius:50%; border:none; cursor:pointer;
+    background:#fff; color:var(--ink); font-size:19px; box-shadow:var(--shadow);
+    display:flex; align-items:center; justify-content:center; transition:transform .18s, background .18s; order:2; }
+  #ctrlBtn:hover { background:#f6f1e9; }
+  #ctrlBtn.active { background:var(--peranakan-teal); color:#fff; transform:rotate(90deg); }
+
+  #ctrlPanel { order:1; background:#fff; border-radius:16px; box-shadow:var(--shadow);
+    padding:12px; width:224px; display:none; flex-direction:column; gap:4px;
+    animation:ctrlIn .18s ease; max-height:60vh; overflow-y:auto; }
+  #ctrlPanel.open { display:flex; }
+  @keyframes ctrlIn { from{opacity:0; transform:translateY(8px) scale(.97);} to{opacity:1; transform:none;} }
+  .ctrlSec { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.6px;
+    color:#a99a80; padding:8px 6px 3px; }
+  .ctrlSec:first-child { padding-top:2px; }
+  .ctrlRow { display:flex; align-items:center; gap:9px; width:100%; text-align:left;
+    padding:10px 11px; border:none; border-radius:11px; background:#faf6ef; color:var(--ink);
+    font-size:13px; font-weight:600; cursor:pointer; transition:background .15s, color .15s; }
+  .ctrlRow:hover { background:#f1ece2; }
+  .ctrlRow.accent { background:var(--peranakan-teal); color:#fff; font-weight:700; }
+  .ctrlRow.accent:hover { filter:brightness(1.06); }
+  #mrtToggle.on { background:#9D5B25; color:#fff; }
+  #busToggle.on { background:#1f6f8b; color:#fff; }
+  #startToggle.me { background:#e8f0fe; color:#1a73e8; }
+  #gps { font-weight:600; }
+  #gps .dot { width:9px;height:9px;border-radius:50%; background:#bbb; flex-shrink:0; }
   #gps.on .dot { background:#34b37a; box-shadow:0 0 0 4px rgba(52,179,122,.25); }
 
-  /* MRT toggle + station markers (Thomson–East Coast Line = brown) */
-  #mrtToggle { position:absolute; bottom:60px; left:16px; z-index:1100;
-    padding:9px 14px; border-radius:999px; background:#fff; color:#9D5B25; border:2px solid #9D5B25;
-    font-size:13px; font-weight:700; cursor:pointer; box-shadow:var(--shadow); display:flex; align-items:center; gap:6px; }
-  #mrtToggle.on { background:#9D5B25; color:#fff; }
   #locateBtn { position:absolute; bottom:88px; right:14px; z-index:1100;
     width:46px; height:46px; border-radius:50%; background:#fff; color:#1a73e8; border:none;
-    font-size:20px; box-shadow:var(--shadow); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    font-size:20px; box-shadow:var(--shadow); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .18s; }
   #locateBtn:hover { background:#eef3ff; }
 
-  /* Trail start point (hub) + start-mode toggle */
-  #startToggle { position:absolute; bottom:104px; left:16px; z-index:1100;
-    padding:9px 14px; border-radius:999px; background:#fff; color:var(--peranakan-teal);
-    border:2px solid var(--peranakan-teal); font-size:13px; font-weight:700; cursor:pointer;
-    box-shadow:var(--shadow); display:flex; align-items:center; gap:6px; }
-  #startToggle.me { color:#1a73e8; border-color:#1a73e8; }
+  .bus-marker { width:20px; height:20px; border-radius:50%; background:#1f6f8b; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:11px; border:2px solid #fff;
+    box-shadow:0 1px 4px rgba(0,0,0,.35); }
+
   .hub-marker { width:34px; height:34px; border-radius:50%; background:var(--peranakan-teal); color:#fff;
     display:flex; align-items:center; justify-content:center; font-size:17px; border:3px solid #fff;
     box-shadow:0 2px 8px rgba(0,0,0,.4); animation:hubPulse 2s ease-in-out infinite; }
   @keyframes hubPulse { 0%,100%{ box-shadow:0 2px 8px rgba(0,0,0,.4), 0 0 0 0 rgba(15,155,142,.45); }
                         70%{ box-shadow:0 2px 8px rgba(0,0,0,.4), 0 0 0 12px rgba(15,155,142,0); } }
-  .mrt-marker { width:26px; height:26px; border-radius:8px; background:#9D5B25; color:#fff;
+  .mrt-marker { width:26px; height:26px; border-radius:8px; color:#fff;
     display:flex; align-items:center; justify-content:center; font-size:14px; border:2px solid #fff;
     box-shadow:0 2px 6px rgba(0,0,0,.35); }
+  /* interchange stations get a wider, pill-shaped split-colour marker */
+  .mrt-marker.interchange { width:34px; border-radius:13px; border-width:3px; }
+  .lineChips { display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+  .lineChip { display:inline-block; color:#fff; font-size:11px; font-weight:700;
+    padding:3px 9px; border-radius:999px; white-space:nowrap; }
 
   /* ---------- Mobile ---------- */
   @media (max-width: 780px) {
@@ -561,6 +630,13 @@
     <h1 class="homeTitle">Welcome to Katong–Joo Chiat</h1>
     <p class="homeTag">Your local guide to Singapore's Peranakan heart — food, culture &amp; real stories.</p>
 
+    <div class="factCard" id="homeFactCard">
+      <div class="factHead">💡 <span id="homeFactLabel">Did you know?</span></div>
+      <div class="factBody" id="homeFactText"></div>
+      <div class="factWho" id="homeFactWho"></div>
+      <button class="factBtn" onclick="shuffleHomeFact()">↻ Another fact</button>
+    </div>
+
     <div class="homeCard" id="prefCard">
       <h2 id="prefQ">First, what are you in the mood for?</h2>
       <p class="homeHint" id="prefHint">We'll suggest the best spots to start with.</p>
@@ -578,13 +654,6 @@
       </div>
       <div id="recList"></div>
       <button class="homeStart" onclick="showView('map')">Start exploring the map →</button>
-    </div>
-
-    <div class="factCard" id="homeFactCard">
-      <div class="factHead">💡 <span id="homeFactLabel">Did you know?</span></div>
-      <div class="factBody" id="homeFactText"></div>
-      <div class="factWho" id="homeFactWho"></div>
-      <button class="factBtn" onclick="shuffleHomeFact()">↻ Another fact</button>
     </div>
 
     <div class="homeHow">🎟️ Scan the QR code at each spot to check in and earn <b>$5 food vouchers</b>.</div>
@@ -621,9 +690,21 @@
       <span>⭐ <b id="mPts">0</b></span>
       <span>📍 <b id="mVisit">0</b>/<span id="mTotal">0</span></span>
     </div>
-    <div id="gps"><span class="dot"></span><span id="gpsText">Enable my location</span></div>
-    <button id="mrtToggle" onclick="toggleMrt()">🚇 MRT</button>
-    <button id="startToggle" onclick="toggleRouteStart()" title="Where the trail route begins">🏁 Start: Hub</button>
+    <!-- one tidy control cluster instead of scattered buttons -->
+    <div id="mapCtrl">
+      <div id="ctrlPanel">
+        <div class="ctrlSec">Trail route</div>
+        <button id="startToggle" class="ctrlRow" onclick="toggleRouteStart()">🏁 Start: Hub</button>
+        <button class="ctrlRow accent" onclick="openPlanner()">🧭 Plan my route</button>
+        <div class="ctrlSec">Map layers</div>
+        <button id="mrtToggle" class="ctrlRow" onclick="toggleMrt()">🚇 MRT stations</button>
+        <button id="busToggle" class="ctrlRow" onclick="toggleBus()">🚌 Bus stops</button>
+        <div class="ctrlSec">Your location</div>
+        <div id="gps" class="ctrlRow"><span class="dot"></span><span id="gpsText">Enable my location</span></div>
+      </div>
+      <button id="ctrlBtn" onclick="toggleCtrl()" title="Map options" aria-label="Map options">☰</button>
+    </div>
+
     <button id="locateBtn" onclick="locateMe()" title="Go to my location" aria-label="Go to my location">📍</button>
     <button id="listToggle">📋 Landmarks</button>
   </div>
@@ -708,9 +789,6 @@
       When a visitor scans a code, the site checks their phone's GPS and only awards the stamp
       if they're actually standing at that spot — so scanning from home won't work.
       Points, stamps and badges unlock only on-site.
-      <br><br>
-      <b>⚠️ To make scanning work on phones,</b> host this file online (e.g. free GitHub Pages or Netlify)
-      and set your address in <code>SITE_URL</code> near the top of the code. The QR codes below encode that address.
       <button class="btn scan" style="margin-top:14px;width:auto;padding:11px 20px;" onclick="openScanner()">📷 Scan a QR code now</button>
       <hr style="border:none;border-top:1px dashed #c8ece7;margin:16px 0;">
       <b>🧪 Testing:</b> turn on test mode to try the reward flow from anywhere — check-ins will skip the GPS location check and pretend you're on-site. Remember to switch it off before going live.
@@ -718,6 +796,38 @@
     </div>
     <button class="qrPrintBtn" onclick="window.print()">🖨️ Print all QR codes</button>
     <div class="qrGrid" id="qrGrid"></div>
+  </div>
+</div>
+
+<!-- Full-screen photo viewer -->
+<div id="lightbox" onclick="closeLightbox(event)">
+  <img id="lbImg" alt="">
+  <button class="lbNav prev" onclick="lbNav(-1,event)" aria-label="Previous">‹</button>
+  <button class="lbNav next" onclick="lbNav(1,event)" aria-label="Next">›</button>
+  <div class="lbCount" id="lbCount"></div>
+  <button class="lbClose" onclick="closeLightbox(event)" aria-label="Close">✕</button>
+</div>
+
+<!-- Route planner -->
+<div id="planModal">
+  <div class="planBox">
+    <div class="planHead">
+      <b>🧭 Plan my route</b>
+      <button onclick="closePlanner()" aria-label="Close">✕</button>
+    </div>
+    <div class="planQuick">
+      <button onclick="planQuick('all')">All stops</button>
+      <button onclick="planQuick('food')">🍜 Food only</button>
+      <button onclick="planQuick('culture')">🎎 Culture only</button>
+      <button onclick="planQuick('unvisited')">Unvisited</button>
+    </div>
+    <label class="planOpt">
+      <input type="checkbox" id="planAuto" onchange="setAutoOrder(this.checked)">
+      <span>Auto-optimise the walking order (shortest route)</span>
+    </label>
+    <div class="planHint" id="planHint">Untick to arrange the stops yourself with ↑ ↓.</div>
+    <div id="planList" class="planList"></div>
+    <button class="planApply" onclick="applyPlan()">Apply route</button>
   </div>
 </div>
 
@@ -848,6 +958,10 @@ function load(){
   s.points  = s.points  || 0;
   s.badges  = s.badges  || [];
   s.vouchers = s.vouchers || {};   // key -> {title, desc, code, redeemed, place}
+  // personalised route: which stops, and in what order
+  if(Array.isArray(s.routeStops)) s.routeStops = s.routeStops.filter(id=>PLACES.some(p=>p.id===id));
+  if(!Array.isArray(s.routeStops) || !s.routeStops.length) s.routeStops = PLACES.map(p=>p.id);
+  s.routeCustomOrder = !!s.routeCustomOrder;
   return s;
 }
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
@@ -894,8 +1008,12 @@ function initMap(){
   updateStartBtn();
   updateNearest();
   if(state.showMrt) setMrt(true);
-  // tapping the map closes the slide-out landmarks list
-  map.on("click", ()=>document.getElementById("sidebar").classList.remove("open"));
+  if(state.showBus) setBus(true);
+  // tapping the map closes the slide-out list and the control panel
+  map.on("click", ()=>{
+    document.getElementById("sidebar").classList.remove("open");
+    closeCtrl();
+  });
 }
 
 function refreshMarkers(){
@@ -950,7 +1068,9 @@ function toggleRouteStart(){ setRouteStart(routeStart==="hub" ? "me" : "hub"); }
    remaining stops nearest-first. */
 /* The stops to visit and where the walk begins */
 function routeInputs(){
-  const shown = PLACES.filter(p=> currentFilter==="all"||currentFilter===p.cat);
+  // only the stops the visitor chose, kept in the order they arranged them
+  const chosen = state.routeStops.map(id=>place(id)).filter(Boolean);
+  const shown = chosen.filter(p=> currentFilter==="all"||currentFilter===p.cat);
   const remaining = shown.filter(p=>!state.visited.includes(p.id));
   const pool = (remaining.length ? remaining : shown).slice();
   const origin = (routeStart==="me" && userPos)
@@ -959,7 +1079,8 @@ function routeInputs(){
   return {origin, pool};
 }
 function routeSig(origin, pool){
-  return origin.lat.toFixed(4)+","+origin.lng.toFixed(4)+"|"+pool.map(p=>p.id).join(",");
+  return (state.routeCustomOrder?"C|":"A|") + origin.lat.toFixed(4)+","+origin.lng.toFixed(4)
+       + "|" + pool.map(p=>p.id).join(",");
 }
 /* greedy nearest-neighbour on straight-line distance (used as a fallback) */
 function greedyOrder(pool, origin){
@@ -1123,13 +1244,14 @@ const geomCache = {};
 let routeFetching = null;
 
 async function buildRoute(origin, pool, sig){
-  // 1) decide the visiting order using real walking distances when possible
+  // 1) decide the visiting order
   let ordered;
-  const dist = await fetchMatrix([origin, ...pool]);
-  if(dist){
-    ordered = orderByMatrix(dist, pool.length+1).map(i=>pool[i-1]);
+  if(state.routeCustomOrder){
+    ordered = pool.slice();                                // the visitor's own order
   } else {
-    ordered = twoOpt(greedyOrder(pool, origin), origin);   // offline fallback
+    const dist = await fetchMatrix([origin, ...pool]);     // real walking distances
+    ordered = dist ? orderByMatrix(dist, pool.length+1).map(i=>pool[i-1])
+                   : twoOpt(greedyOrder(pool, origin), origin);
   }
   setRouteIndex(ordered);                                  // number the stops 1,2,3…
   // 2) get the street-following geometry through those waypoints
@@ -1148,7 +1270,7 @@ function drawRoute(){
   if(geomCache[sig]){ paintRoute(geomCache[sig], false); return; }
 
   // instant feedback: faint straight line in a sensible order
-  const provOrder = twoOpt(greedyOrder(pool,origin), origin);
+  const provOrder = state.routeCustomOrder ? pool.slice() : twoOpt(greedyOrder(pool,origin), origin);
   setRouteIndex(provOrder);
   const prov = [[origin.lat,origin.lng], ...provOrder.map(p=>[p.lat,p.lng])];
   paintRoute(prov, true);
@@ -1181,20 +1303,46 @@ function updateNearest(){
    MRT STATIONS (Thomson–East Coast Line) — toggle on/off
    Coordinates are approximate station entrance locations.
    ============================================================ */
+const LINE_COLOR = { TEL:"#9D5B25", EWL:"#009645", CCL:"#FA9E0D", DTL:"#0055B8" };
+const LINE_NAME  = { TEL:"Thomson–East Coast Line", EWL:"East–West Line", CCL:"Circle Line", DTL:"Downtown Line" };
 const MRT_STATIONS = [
-  { name:"Marine Parade MRT (TE26)",  lat:1.30181, lng:103.90535 },
-  { name:"Tanjong Katong MRT (TE25)", lat:1.29963, lng:103.89570 },
-  { name:"Marine Terrace MRT (TE27)", lat:1.30683, lng:103.91243 },
-  { name:"Katong Park MRT (TE24)",    lat:1.29757, lng:103.88936 },
+  // Thomson–East Coast Line (brown) — runs right through Katong
+  { name:"Marine Parade MRT (TE26)",    lines:["TEL"],       lat:1.30181, lng:103.90535 },
+  { name:"Tanjong Katong MRT (TE25)",   lines:["TEL"],       lat:1.29963, lng:103.89570 },
+  { name:"Marine Terrace MRT (TE27)",   lines:["TEL"],       lat:1.30683, lng:103.91243 },
+  { name:"Katong Park MRT (TE24)",      lines:["TEL"],       lat:1.29757, lng:103.88936 },
+  // East–West Line (green) — just north of Joo Chiat
+  { name:"Eunos MRT (EW7)",             lines:["EWL"],       lat:1.31966, lng:103.90312 },
+  { name:"Paya Lebar MRT (EW8 / CC9)",  lines:["EWL","CCL"], lat:1.31766, lng:103.89253 },  // interchange
+  // Downtown Line (blue) — further north
+  { name:"Mattar MRT (DT25)",           lines:["DTL"],       lat:1.32672, lng:103.88345 },
+  { name:"MacPherson MRT (DT26 / CC10)",lines:["DTL","CCL"], lat:1.32665, lng:103.88994 },  // interchange
 ];
+/* solid colour for one line; split colours for an interchange */
+function mrtBg(lines){
+  if(lines.length===1) return LINE_COLOR[lines[0]];
+  const n=lines.length;
+  const stops=lines.map((k,i)=>`${LINE_COLOR[k]} ${(i*100/n).toFixed(2)}% ${((i+1)*100/n).toFixed(2)}%`).join(", ");
+  return `linear-gradient(90deg, ${stops})`;
+}
 let mrtLayer=null, mrtOn=false;
 function buildMrt(){
   if(!map || mrtLayer) return;
   mrtLayer=L.layerGroup();
   MRT_STATIONS.forEach(s=>{
-    const ic=L.divIcon({className:"",html:'<div class="mrt-marker">🚇</div>',iconSize:[28,28],iconAnchor:[14,14]});
+    const bg = mrtBg(s.lines);
+    const interchange = s.lines.length>1;
+    const ic=L.divIcon({className:"",
+      html:`<div class="mrt-marker${interchange?" interchange":""}" style="background:${bg}">🚇</div>`,
+      iconSize:[28,28],iconAnchor:[14,14]});
     const m=L.marker([s.lat,s.lng],{icon:ic,title:s.name});
-    m.bindPopup(`<b>🚇 ${s.name}</b><br>Thomson–East Coast Line`);
+    const chips = s.lines.map(k=>
+      `<span class="lineChip" style="background:${LINE_COLOR[k]}">${LINE_NAME[k]}</span>`).join("");
+    m.bindPopup(
+      `<b>🚇 ${s.name}</b>` +
+      (interchange ? `<br><i style="font-size:11px;color:#666;">Interchange · ${s.lines.length} lines</i>` : "") +
+      `<div class="lineChips">${chips}</div>`
+    );
     mrtLayer.addLayer(m);
   });
 }
@@ -1206,6 +1354,166 @@ function setMrt(on){
   if(on){ mrtLayer.addTo(map); } else if(map.hasLayer(mrtLayer)){ map.removeLayer(mrtLayer); }
 }
 function toggleMrt(){ setMrt(!mrtOn); }
+
+/* ============================================================
+   BUS STOPS — pulled live from OpenStreetMap (free, no API key)
+   and cached locally so we only fetch once.
+   ============================================================ */
+const BUS_BBOX = [1.3020, 103.8960, 1.3170, 103.9100];   // south,west,north,east
+let busLayer=null, busOn=false;
+
+/* several public Overpass mirrors — the main one is often rate-limited */
+const OVERPASS_HOSTS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+];
+
+async function fetchBusStops(){
+  const cached = localStorage.getItem("busStopsV1");
+  if(cached){ try{ const s=JSON.parse(cached); if(s.length) return s; }catch(e){} }
+
+  // match both tagging styles used for Singapore bus stops
+  const q = `[out:json][timeout:25];(node["highway"="bus_stop"](${BUS_BBOX.join(",")});` +
+            `node["public_transport"="platform"]["bus"="yes"](${BUS_BBOX.join(",")}););out body;`;
+
+  let lastErr = "";
+  for(const host of OVERPASS_HOSTS){
+    try{
+      const r = await fetch(host + "?data=" + encodeURIComponent(q));
+      if(!r.ok){ lastErr = "HTTP "+r.status; continue; }
+      const j = await r.json();
+      const seen = {};
+      const stops = (j.elements||[]).filter(e=>{
+        const k = e.lat.toFixed(5)+","+e.lon.toFixed(5);
+        if(seen[k]) return false; seen[k]=1; return true;
+      }).map(e=>({
+        lat:e.lat, lng:e.lon,
+        name:(e.tags && e.tags.name) || "Bus stop",
+        code:(e.tags && (e.tags.ref || e.tags.asset_ref)) || ""
+      }));
+      if(stops.length){
+        try{ localStorage.setItem("busStopsV1", JSON.stringify(stops)); }catch(e){}
+        return stops;
+      }
+      lastErr = "no stops returned";
+    }catch(e){ lastErr = "network/CORS blocked"; }
+  }
+  throw new Error(lastErr || "unknown error");
+}
+async function buildBus(){
+  if(busLayer) return;
+  let stops=[];
+  toast("🚌 Loading bus stops…");
+  try{ stops = await fetchBusStops(); }
+  catch(e){ toast("Couldn't load bus stops ("+e.message+"). Try again in a moment."); return; }
+  if(!stops.length){ toast("No bus stops found for this area."); return; }
+  toast(`🚌 Loaded ${stops.length} bus stops.`);
+  busLayer = L.layerGroup();
+  stops.forEach(s=>{
+    const ic=L.divIcon({className:"",html:'<div class="bus-marker">🚌</div>',iconSize:[22,22],iconAnchor:[11,11]});
+    const m=L.marker([s.lat,s.lng],{icon:ic,title:s.name});
+    m.bindPopup(`<b>🚌 ${s.name}</b>` + (s.code?`<br><span style="font-size:11px;color:#666;">Stop ${s.code}</span>`:""));
+    busLayer.addLayer(m);
+  });
+}
+async function setBus(on){
+  busOn = on; state.showBus = on; save();
+  const b=document.getElementById("busToggle"); if(b) b.classList.toggle("on", on);
+  if(!map) return;
+  if(on){
+    await buildBus();
+    if(busLayer){ busLayer.addTo(map); }
+    else {                              // loading failed → flip the toggle back off
+      busOn=false; state.showBus=false; save();
+      if(b) b.classList.remove("on");
+    }
+  }
+  else if(busLayer && map.hasLayer(busLayer)) map.removeLayer(busLayer);
+}
+function toggleBus(){ setBus(!busOn); }
+
+/* ============================================================
+   ROUTE PLANNER — visitors pick which stops, and optionally the order
+   ============================================================ */
+let planStops = [], planAuto = true;      // working copy while the dialog is open
+
+function openPlanner(){
+  planStops = state.routeStops.slice();
+  planAuto  = !state.routeCustomOrder;
+  document.getElementById("planAuto").checked = planAuto;
+  renderPlanner();
+  document.getElementById("planModal").classList.add("open");
+}
+function closePlanner(){ document.getElementById("planModal").classList.remove("open"); }
+
+function renderPlanner(){
+  const list=document.getElementById("planList"); list.innerHTML="";
+  const included = planStops.map(id=>place(id)).filter(Boolean);
+  const excluded = PLACES.filter(p=>!planStops.includes(p.id));
+  const row=(p, on, pos)=>{
+    const el=document.createElement("div");
+    el.className="planRow"+(on?"":" off");
+    el.innerHTML=`
+      <input type="checkbox" ${on?"checked":""}>
+      <div class="pIcon" style="background:${p.color}">${p.icon}</div>
+      <div class="pName">${on?`${pos}. `:""}${p.name}</div>
+      <div class="pOrd">
+        <button title="Move up" ${(!on||planAuto||pos===1)?"disabled":""}>↑</button>
+        <button title="Move down" ${(!on||planAuto||pos===included.length)?"disabled":""}>↓</button>
+      </div>`;
+    el.querySelector("input").onchange=()=>toggleStop(p.id);
+    const [up,dn]=el.querySelectorAll(".pOrd button");
+    up.onclick=()=>moveStop(p.id,-1);
+    dn.onclick=()=>moveStop(p.id, 1);
+    list.appendChild(el);
+  };
+  included.forEach((p,i)=>row(p,true,i+1));
+  excluded.forEach(p=>row(p,false,0));
+  document.getElementById("planHint").textContent = planAuto
+    ? "The shortest walking order is worked out for you."
+    : "Arrange the stops yourself using the ↑ ↓ buttons.";
+}
+function toggleStop(id){
+  const i=planStops.indexOf(id);
+  if(i>=0) planStops.splice(i,1); else planStops.push(id);
+  renderPlanner();
+}
+function moveStop(id, dir){
+  const i=planStops.indexOf(id); if(i<0) return;
+  const j=i+dir; if(j<0 || j>=planStops.length) return;
+  [planStops[i], planStops[j]] = [planStops[j], planStops[i]];
+  renderPlanner();
+}
+function setAutoOrder(on){ planAuto=on; renderPlanner(); }
+function planQuick(kind){
+  if(kind==="all")       planStops = PLACES.map(p=>p.id);
+  else if(kind==="food") planStops = PLACES.filter(p=>p.cat==="food").map(p=>p.id);
+  else if(kind==="culture") planStops = PLACES.filter(p=>p.cat==="culture").map(p=>p.id);
+  else if(kind==="unvisited") planStops = PLACES.filter(p=>!state.visited.includes(p.id)).map(p=>p.id);
+  if(!planStops.length) planStops = PLACES.map(p=>p.id);
+  renderPlanner();
+}
+function applyPlan(){
+  if(!planStops.length){ toast("Pick at least one stop for your route."); return; }
+  state.routeStops = planStops.slice();
+  state.routeCustomOrder = !planAuto;
+  save();
+  closePlanner();
+  if(map){ drawRoute(); }
+  renderList();
+  toast(`🧭 Route set — ${planStops.length} stop${planStops.length>1?"s":""}${planAuto?"":" in your order"}.`);
+}
+
+/* Expandable map control cluster */
+function toggleCtrl(force){
+  const p=document.getElementById("ctrlPanel"), b=document.getElementById("ctrlBtn");
+  const open = (force!==undefined) ? force : !p.classList.contains("open");
+  p.classList.toggle("open", open);
+  b.classList.toggle("active", open);
+}
+function closeCtrl(){ toggleCtrl(false); }
 
 /* Centre the map on the visitor's current location */
 let centerOnFix=false;
@@ -1257,6 +1565,32 @@ function showGalleryPhoto(i){
   document.getElementById("pCount").textContent=`${galleryIdx+1} / ${galleryPhotos.length}`;
 }
 function galleryNav(d,e){ if(e) e.stopPropagation(); showGalleryPhoto(galleryIdx+d); }
+
+/* ---- full-screen photo viewer ---- */
+function openLightbox(){
+  if(!galleryPhotos.length) return;
+  lbShow(galleryIdx);
+  document.getElementById("lightbox").classList.add("open");
+}
+function lbShow(i){
+  galleryIdx=(i+galleryPhotos.length)%galleryPhotos.length;
+  document.getElementById("lbImg").src = galleryPhotos[galleryIdx];
+  document.getElementById("lbCount").textContent = `${galleryIdx+1} / ${galleryPhotos.length}`;
+  document.querySelectorAll(".lbNav").forEach(b=>b.style.display = galleryPhotos.length>1 ? "flex":"none");
+  showGalleryPhoto(galleryIdx);   // keep the panel hero in sync
+}
+function lbNav(d,e){ if(e) e.stopPropagation(); lbShow(galleryIdx+d); }
+function closeLightbox(e){
+  if(e && e.target && e.target.id==="lbImg") return;   // clicking the photo itself keeps it open
+  document.getElementById("lightbox").classList.remove("open");
+}
+document.addEventListener("keydown", e=>{
+  const lb=document.getElementById("lightbox");
+  if(!lb || !lb.classList.contains("open")) return;
+  if(e.key==="Escape") closeLightbox();
+  if(e.key==="ArrowLeft") lbNav(-1);
+  if(e.key==="ArrowRight") lbNav(1);
+});
 // find <id>_i with any supported extension (prefers png, then jpg, then jpeg)
 function probePhotoAt(id, i, cb){
   const exts=PHOTO_EXTS.slice();
@@ -1296,6 +1630,7 @@ function setupGallery(p){
     prev.style.display=next.style.display=multi?"flex":"none";
     cnt.style.display=multi?"block":"none";
     prev.onclick=(e)=>galleryNav(-1,e); next.onclick=(e)=>galleryNav(1,e);
+    img.onclick=()=>openLightbox();
     if(credit){ credit.textContent="📷 Images used for educational / demo purposes only."; credit.style.display="block"; }
     showGalleryPhoto(0);
   });
@@ -1536,7 +1871,7 @@ function renderRewards(){
   renderVouchers();
   const pct = Math.round(state.visited.length/PLACES.length*100);
   document.getElementById("progFill").style.width=pct+"%";
-  document.getElementById("progText").textContent=`${state.visited.length} / ${PLACES.length}`;
+  document.getElementById("progText").textContent=`${state.visited.length} / ${PLACES.length} · ${pct}%`;
   const grid=document.getElementById("badgeGrid"); grid.innerHTML="";
   BADGES.forEach(b=>{
     const earned=state.badges.includes(b.id);
@@ -2120,7 +2455,8 @@ document.getElementById("langSel").value=lang;
 document.getElementById("langSel").onchange=(e)=>setLang(e.target.value);
 document.getElementById("resetBtn").onclick=()=>{
   if(confirm("Reset all progress, points and badges?")){
-    state={visited:[],points:0,badges:[],vouchers:{},user:state.user,lang:state.lang}; save();
+    state={visited:[],points:0,badges:[],vouchers:{},user:state.user,lang:state.lang,
+           routeStops:PLACES.map(p=>p.id), routeCustomOrder:false}; save();
     refreshMarkers(); renderList(); updateScore(); renderRewards(); updateNearest();
     if(activeId) updateCheckBtn(); toast("Progress reset.");
   }
