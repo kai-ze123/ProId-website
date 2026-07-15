@@ -245,7 +245,7 @@
   }
   /* live-wallpaper drift: only the tile layer moves, gradients stay put */
   @keyframes bgdrift { to { background-position: 84px 84px, 0 0, 0 0; } }
-  .homeInner { max-width:640px; margin:0 auto; padding:30px 20px 60px; text-align:center; }
+  .homeInner { max-width:720px; margin:0 auto; padding:30px 20px 60px; text-align:center; }
   /* decorative Peranakan dot-divider under the tagline */
   .homeTag::after {
     content:""; display:block; width:130px; height:12px; margin:16px auto 0;
@@ -270,6 +270,19 @@
   .homeTitle { font-size:26px; font-weight:800; margin-top:18px; color:var(--peranakan-teal); }
   .homeTag { font-size:14.5px; color:#6b6255; margin-top:8px; line-height:1.55; }
   .homeCard { background:#fff; border-radius:20px; box-shadow:var(--shadow); padding:22px 18px; margin-top:26px; }
+  /* "What is Peranakan culture?" — featured, highlighted, at the top */
+  .cultureFeature { margin-top:24px; text-align:left; border-radius:20px; padding:24px 24px 20px;
+    background:linear-gradient(135deg, rgba(15,155,142,.12), rgba(244,185,66,.15)), #fff;
+    border:2px solid var(--peranakan-teal); box-shadow:0 10px 30px rgba(15,155,142,.20); }
+  .cultureFeature .cultureTitle { font-size:21px; font-weight:800; color:var(--peranakan-teal); margin-bottom:10px; }
+  .cultureFeature p { font-size:14.5px; line-height:1.7; color:#4a463e; margin:0; }
+  .cultureFeature ul { list-style:none; margin:14px 0 0; padding:0; }
+  .cultureFeature li { font-size:13.5px; line-height:1.55; color:#5a5348; padding:9px 0; border-top:1px solid rgba(15,155,142,.16); }
+
+  /* fun fact (left) + mood picker (right) */
+  .homeGrid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:22px; align-items:stretch; }
+  .homeGrid > * { margin-top:0 !important; height:100%; }
+  @media (max-width:640px){ .homeGrid { grid-template-columns:1fr; } }
   .homeCard h2 { font-size:18px; }
   .homeHint { font-size:12.5px; color:#8a8172; margin-top:4px; }
   .prefBtns { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
@@ -332,13 +345,26 @@
   .sectionTitle { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#8a8172; margin:22px 0 4px; }
 
   /* Collectible Peranakan-tile stamps */
-  .stampGrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:12px; margin-top:8px; }
-  .stampCell { text-align:center; }
+  /* 12 tiles (11 stops + the secret) divide evenly: 4 across, or 3 on phones */
+  .stampGrid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:10px; }
+  @media (max-width:600px){ .stampGrid { grid-template-columns:repeat(3,1fr); gap:11px; } }
+  .stampCell { text-align:center; display:flex; flex-direction:column; align-items:center; }
   .stampCell .tileSvg { width:100%; height:auto; aspect-ratio:1/1; filter:grayscale(.7); opacity:.55; transition:all .3s; }
   .stampCell.earned .tileSvg { filter:none; opacity:1; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.12); border-radius:12px; }
   .stampCell.earned:hover .tileSvg { transform:translateY(-2px) scale(1.03); }
-  .stampName { font-size:10.5px; font-weight:700; color:#8a8172; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .stampName { font-size:10.5px; font-weight:700; color:#8a8172; margin-top:6px; width:100%;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .stampCell.earned .stampName { color:var(--ink); }
+  /* secret bonus tile */
+  .mysteryTile { aspect-ratio:1/1; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:30px; background:repeating-linear-gradient(45deg,#efeae2,#efeae2 8px,#e6dfd3 8px,#e6dfd3 16px);
+    border:2px dashed #c9a227; color:#a08a2e; }
+  .secretCell.earned .tileSvg { box-shadow:0 4px 16px rgba(201,162,39,.45); }
+  .secretNote { margin-top:16px; padding:12px 14px; border-radius:12px; font-size:12.5px; font-weight:600;
+    background:#fdf6e3; border:1px dashed #e6cf9e; color:#8a6d1f; text-align:center; }
+  .secretNote.open  { background:#f3ecfa; border-color:#d8c9f0; color:#6a4fb8; }
+  .secretNote.found { background:#e9f8f1; border-color:#b7e4cd; color:#1d7a52; }
+  .poi.secret .thumb { box-shadow:0 0 0 2px #c9a227; }
 
   /* Food voucher tickets */
   .voucherEmpty { background:#fbf5ec; border:1px dashed #e0d3bf; border-radius:14px; padding:20px; text-align:center; font-weight:700; color:#8a7a5e; }
@@ -374,6 +400,48 @@
   .qrCard .qrImg canvas, .qrCard .qrImg img { width:150px !important; height:150px !important; }
   .qrCard .qrTag { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; margin-top:10px; text-transform:uppercase; }
   .qrPrintBtn { margin:2px 0 22px; padding:11px 20px; background:var(--peranakan-teal); color:#fff; border:none; border-radius:11px; font-weight:700; cursor:pointer; font-size:14px; }
+
+  /* Heritage quiz */
+  #quizModal { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1450;
+    display:none; align-items:center; justify-content:center; padding:16px; }
+  #quizModal.open { display:flex; }
+  .quizBox { background:#fff; border-radius:18px; width:min(94vw,440px); overflow:hidden;
+    box-shadow:var(--shadow); animation:ctrlIn .2s ease; }
+  .quizHead { display:flex; align-items:center; justify-content:space-between; padding:15px 18px;
+    background:linear-gradient(100deg,#6a4fb8,#8a63d6); color:#fff; font-weight:700; font-size:15px; }
+  .quizHead button { width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.25);color:#fff;font-size:15px;cursor:pointer; }
+  .quizBody { padding:18px; }
+  .quizQ { font-size:16px; font-weight:700; line-height:1.5; color:var(--ink); margin-bottom:14px; }
+  .quizOpt { display:block; width:100%; text-align:left; padding:13px 14px; margin-bottom:9px;
+    border:2px solid #eadfce; border-radius:12px; background:#fff; font-size:14px; font-weight:600;
+    color:var(--ink); cursor:pointer; transition:all .15s; }
+  .quizOpt:hover:not(:disabled) { border-color:#8a63d6; background:#f8f5fd; }
+  .quizOpt.right { border-color:#34b37a; background:#e9f8f1; color:#1d7a52; }
+  .quizOpt.wrong { border-color:#c0392b; background:#fdecea; color:#a5281c; }
+  .quizOpt:disabled { cursor:default; }
+  .quizFb { display:none; margin-top:12px; padding:12px 14px; border-radius:12px; font-size:13px; line-height:1.55; }
+  .quizFb.show { display:block; }
+  .quizFb.ok { background:#e9f8f1; color:#1d7a52; }
+  .quizFb.no { background:#fdecea; color:#a5281c; }
+  .quizNext { width:100%; padding:15px; border:none; background:#6a4fb8; color:#fff; font-weight:800; font-size:15px; cursor:pointer; }
+
+  /* Certificate */
+  #certModal { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:1450;
+    display:none; align-items:center; justify-content:center; padding:16px; }
+  #certModal.open { display:flex; }
+  .certBox { background:#fff; border-radius:18px; width:min(96vw,720px); max-height:92vh;
+    display:flex; flex-direction:column; overflow:hidden; box-shadow:var(--shadow); }
+  .certHead { display:flex; align-items:center; justify-content:space-between; padding:15px 18px;
+    background:linear-gradient(100deg,var(--peranakan-yellow),var(--peranakan-coral)); color:#fff; font-size:16px; }
+  .certHead button { width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.22);color:#fff;font-size:15px;cursor:pointer; }
+  .certPreview { padding:14px; overflow:auto; background:#f4efe6; }
+  .certPreview svg { width:100%; height:auto; border-radius:8px; box-shadow:var(--shadow-sm); }
+  .certActions { display:flex; gap:10px; padding:14px; border-top:1px solid #eee; }
+  .certBtn { flex:1; padding:13px; border:none; border-radius:12px; background:var(--peranakan-teal);
+    color:#fff; font-weight:700; font-size:14px; cursor:pointer; }
+  .certBtn.ghost { background:#f1ece2; color:#6b6255; }
+  .certLocked { margin-top:14px; width:100%; padding:13px; border-radius:12px; border:1px dashed #e0d7c8;
+    background:#faf6ef; color:#8a8172; font-size:12.5px; font-weight:600; text-align:center; }
 
   /* Full-screen photo viewer */
   #lightbox { position:fixed; inset:0; background:rgba(10,8,6,.94); z-index:1500;
@@ -429,6 +497,9 @@
   #scanModal .scanHint { color:#fff; margin-top:16px; font-size:14px; text-align:center; max-width:420px; line-height:1.5; }
   #scanModal .scanClose { margin-top:18px; padding:12px 26px; background:#fff; color:#111; border:none; border-radius:999px; font-weight:700; cursor:pointer; font-size:15px; }
   .btn.scan { background: var(--peranakan-teal); color:#fff; }
+  .btn.quiz { background:#f3ecfa; color:#6a4fb8; border:1.5px solid #d8c9f0; }
+  .btn.quiz:hover { background:#ece0fa; }
+  .btn.quiz.done { background:#e9f8f1; color:#1d7a52; border-color:#b7e4cd; cursor:default; }
 
   /* Account / cross-device box */
   .acctBox { background:#fff; border:1px solid #eadfce; border-radius:14px; padding:14px; margin-bottom:18px; }
@@ -491,10 +562,26 @@
   .ctrlRow.accent:hover { filter:brightness(1.06); }
   #mrtToggle.on { background:#9D5B25; color:#fff; }
   #busToggle.on { background:#1f6f8b; color:#fff; }
+  #routeToggle.on { background:var(--peranakan-coral); color:#fff; }
   #startToggle.me { background:#e8f0fe; color:#1a73e8; }
   #gps { font-weight:600; }
   #gps .dot { width:9px;height:9px;border-radius:50%; background:#bbb; flex-shrink:0; }
   #gps.on .dot { background:#34b37a; box-shadow:0 0 0 4px rgba(52,179,122,.25); }
+
+  /* first-visit route-planning nudge */
+  #planNudge { display:none; position:absolute; bottom:78px; right:14px; z-index:1150;
+    width:230px; background:#fff; border-radius:16px; box-shadow:var(--shadow);
+    padding:14px 16px 15px; animation:ctrlIn .25s ease; }
+  #planNudge.show { display:block; }
+  #planNudge:after { content:""; position:absolute; bottom:-8px; right:26px; width:16px; height:16px;
+    background:#fff; transform:rotate(45deg); box-shadow:3px 3px 6px rgba(35,25,15,.08); }
+  #planNudge .nClose { position:absolute; top:8px; right:8px; width:24px; height:24px; border:none;
+    background:#f1ece2; color:#8a8172; border-radius:50%; font-size:12px; cursor:pointer; }
+  #planNudge .nTitle { font-size:14.5px; font-weight:800; color:var(--peranakan-teal); }
+  #planNudge .nText { font-size:12.5px; color:#6b6255; line-height:1.5; margin:6px 0 12px; }
+  #planNudge .nBtn { width:100%; padding:10px; border:none; border-radius:11px;
+    background:var(--peranakan-teal); color:#fff; font-weight:700; font-size:13.5px; cursor:pointer; }
+  #planNudge .nBtn:hover { filter:brightness(1.06); }
 
   #locateBtn { position:absolute; bottom:88px; right:14px; z-index:1100;
     width:46px; height:46px; border-radius:50%; background:#fff; color:#1a73e8; border:none;
@@ -618,8 +705,8 @@
 
 <!-- Test mode banner (visible everywhere when on) -->
 <div id="testBanner">
-  <span>🧪 TEST MODE ON — check-ins skip the GPS location check</span>
-  <button onclick="setTestMode(false)">Disable test mode</button>
+  <span>🔑 ADMIN MODE — check-ins bypass the QR scan and GPS check</span>
+  <button onclick="setTestMode(false)">Exit admin mode</button>
 </div>
 
 <!-- Home / landing page -->
@@ -630,20 +717,30 @@
     <h1 class="homeTitle">Welcome to Katong–Joo Chiat</h1>
     <p class="homeTag">Your local guide to Singapore's Peranakan heart — food, culture &amp; real stories.</p>
 
-    <div class="factCard" id="homeFactCard">
-      <div class="factHead">💡 <span id="homeFactLabel">Did you know?</span></div>
-      <div class="factBody" id="homeFactText"></div>
-      <div class="factWho" id="homeFactWho"></div>
-      <button class="factBtn" onclick="shuffleHomeFact()">↻ Another fact</button>
+    <!-- Peranakan culture: featured at the top, always visible -->
+    <div class="cultureFeature" id="cultureCard">
+      <div class="cultureTitle" id="cultureTitle">🏮 What is Peranakan culture?</div>
+      <p id="cultureIntro"></p>
+      <ul id="cultureThreads"></ul>
     </div>
 
-    <div class="homeCard" id="prefCard">
-      <h2 id="prefQ">First, what are you in the mood for?</h2>
-      <p class="homeHint" id="prefHint">We'll suggest the best spots to start with.</p>
-      <div class="prefBtns">
-        <button data-pref="food">🍜 Food</button>
-        <button data-pref="culture">🎎 Culture</button>
-        <button data-pref="both">🌸 A bit of both</button>
+    <!-- fun fact (left) + mood picker (right) -->
+    <div class="homeGrid">
+      <div class="factCard" id="homeFactCard">
+        <div class="factHead">💡 <span id="homeFactLabel">Did you know?</span></div>
+        <div class="factBody" id="homeFactText"></div>
+        <div class="factWho" id="homeFactWho"></div>
+        <button class="factBtn" onclick="shuffleHomeFact()">↻ Another fact</button>
+      </div>
+
+      <div class="homeCard" id="prefCard">
+        <h2 id="prefQ">First, what are you in the mood for?</h2>
+        <p class="homeHint" id="prefHint">We'll suggest the best spots to start with.</p>
+        <div class="prefBtns">
+          <button data-pref="food">🍜 Food</button>
+          <button data-pref="culture">🎎 Culture</button>
+          <button data-pref="both">🌸 A bit of both</button>
+        </div>
       </div>
     </div>
 
@@ -693,13 +790,14 @@
     <!-- one tidy control cluster instead of scattered buttons -->
     <div id="mapCtrl">
       <div id="ctrlPanel">
-        <div class="ctrlSec">Trail route</div>
+        <div class="ctrlSec" id="ctrlSecRoute">Trail route</div>
+        <button id="routeToggle" class="ctrlRow" onclick="toggleRoute()">🧭 Guided route: On</button>
         <button id="startToggle" class="ctrlRow" onclick="toggleRouteStart()">🏁 Start: Hub</button>
-        <button class="ctrlRow accent" onclick="openPlanner()">🧭 Plan my route</button>
-        <div class="ctrlSec">Map layers</div>
+        <button class="ctrlRow accent" id="ctrlPlan" onclick="openPlanner()">🧭 Plan my route</button>
+        <div class="ctrlSec" id="ctrlSecLayers">Map layers</div>
         <button id="mrtToggle" class="ctrlRow" onclick="toggleMrt()">🚇 MRT stations</button>
         <button id="busToggle" class="ctrlRow" onclick="toggleBus()">🚌 Bus stops</button>
-        <div class="ctrlSec">Your location</div>
+        <div class="ctrlSec" id="ctrlSecLoc">Your location</div>
         <div id="gps" class="ctrlRow"><span class="dot"></span><span id="gpsText">Enable my location</span></div>
       </div>
       <button id="ctrlBtn" onclick="toggleCtrl()" title="Map options" aria-label="Map options">☰</button>
@@ -707,6 +805,14 @@
 
     <button id="locateBtn" onclick="locateMe()" title="Go to my location" aria-label="Go to my location">📍</button>
     <button id="listToggle">📋 Landmarks</button>
+
+    <!-- first-visit route-planning nudge -->
+    <div id="planNudge">
+      <button class="nClose" onclick="dismissNudge()" aria-label="Dismiss">✕</button>
+      <div class="nTitle" id="nudgeTitle">🧭 Make it yours</div>
+      <div class="nText" id="nudgeText">Pick which stops you want and the order to walk them.</div>
+      <button class="nBtn" id="nudgeBtn" onclick="dismissNudge(); openPlanner();">Plan my route</button>
+    </div>
   </div>
 </div>
 
@@ -731,6 +837,7 @@
   <div class="actions">
     <div class="distNote" id="pDist"></div>
     <button class="btn dir" id="pDir">🧭 Get Directions</button>
+    <button class="btn quiz" id="pQuiz">🧠 Heritage quiz</button>
     <button class="btn scan" id="pCheck">📷 Scan QR to check in</button>
   </div>
 </div>
@@ -772,6 +879,7 @@
     <div class="badgeGrid" id="badgeGrid"></div>
     <div class="sectionTitle" id="secStamps">🏵️ Peranakan tile stamps</div>
     <div id="stampGrid" class="stampGrid"></div>
+    <div id="certSlot"></div>
     <button class="resetBtn" id="resetBtn">Reset my progress</button>
   </div>
 </div>
@@ -780,22 +888,50 @@
 <div class="qrview" id="qrview">
   <div class="rhead" style="background:linear-gradient(120deg,var(--peranakan-teal),#0c7d72);color:#fff;padding:26px 20px;position:relative;">
     <button class="close" onclick="showView('map')" style="position:absolute;top:16px;right:16px;height:36px;padding:0 16px;border-radius:999px;background:rgba(0,0,0,.22);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;">← Back to map</button>
-    <h2 style="font-size:24px;">📷 QR Code Trail</h2>
-    <div style="font-size:13px;opacity:.95;margin-top:4px;">Scan a QR code at each spot to collect your stamp</div>
+    <h2 id="qrH2" style="font-size:24px;">📷 QR Code Trail</h2>
+    <div id="qrSub" style="font-size:13px;opacity:.95;margin-top:4px;">Scan a QR code at each spot to collect your stamp</div>
   </div>
   <div class="qrbody">
     <div class="qrIntro">
-      <b>How it works:</b> Print these QR codes and place one physically at each attraction.
+      <span id="qrHow"><b>How it works:</b> Print these QR codes and place one physically at each attraction.
       When a visitor scans a code, the site checks their phone's GPS and only awards the stamp
       if they're actually standing at that spot — so scanning from home won't work.
-      Points, stamps and badges unlock only on-site.
-      <button class="btn scan" style="margin-top:14px;width:auto;padding:11px 20px;" onclick="openScanner()">📷 Scan a QR code now</button>
-      <hr style="border:none;border-top:1px dashed #c8ece7;margin:16px 0;">
-      <b>🧪 Testing:</b> turn on test mode to try the reward flow from anywhere — check-ins will skip the GPS location check and pretend you're on-site. Remember to switch it off before going live.
-      <button id="testEnableBtn" class="btn" style="margin-top:12px;width:auto;padding:11px 20px;background:#8a5cc4;color:#fff;" onclick="toggleTestMode()">🧪 Enable test mode (simulate being on-site)</button>
+      Points, stamps and badges unlock only on-site.</span>
+      <button class="btn scan" id="qrScanBtn" style="margin-top:14px;width:auto;padding:11px 20px;" onclick="openScanner()">📷 Scan a QR code now</button>
     </div>
-    <button class="qrPrintBtn" onclick="window.print()">🖨️ Print all QR codes</button>
+    <button class="qrPrintBtn" id="qrPrintBtn" onclick="window.print()">🖨️ Print all QR codes</button>
     <div class="qrGrid" id="qrGrid"></div>
+  </div>
+</div>
+
+<!-- Heritage quiz -->
+<div id="quizModal">
+  <div class="quizBox">
+    <div class="quizHead">
+      <span id="quizWho">🧠 Heritage quiz</span>
+      <button onclick="closeQuiz()" aria-label="Close">✕</button>
+    </div>
+    <div class="quizBody">
+      <div class="quizQ" id="quizQ"></div>
+      <div id="quizOpts"></div>
+      <div class="quizFb" id="quizFb"></div>
+    </div>
+    <button class="quizNext" id="quizNext" onclick="closeQuiz()">Close</button>
+  </div>
+</div>
+
+<!-- Completion certificate -->
+<div id="certModal">
+  <div class="certBox">
+    <div class="certHead">
+      <b>🏆 Certificate of Completion</b>
+      <button onclick="closeCert()" aria-label="Close">✕</button>
+    </div>
+    <div class="certPreview" id="certPreview"></div>
+    <div class="certActions">
+      <button class="certBtn" onclick="downloadCert()">⬇️ Download PNG</button>
+      <button class="certBtn ghost" onclick="shareCert()">🔗 Share</button>
+    </div>
   </div>
 </div>
 
@@ -812,22 +948,22 @@
 <div id="planModal">
   <div class="planBox">
     <div class="planHead">
-      <b>🧭 Plan my route</b>
+      <b id="planTitle">🧭 Plan my route</b>
       <button onclick="closePlanner()" aria-label="Close">✕</button>
     </div>
     <div class="planQuick">
-      <button onclick="planQuick('all')">All stops</button>
-      <button onclick="planQuick('food')">🍜 Food only</button>
-      <button onclick="planQuick('culture')">🎎 Culture only</button>
-      <button onclick="planQuick('unvisited')">Unvisited</button>
+      <button id="planQAll" onclick="planQuick('all')">All stops</button>
+      <button id="planQFood" onclick="planQuick('food')">🍜 Food only</button>
+      <button id="planQCult" onclick="planQuick('culture')">🎎 Culture only</button>
+      <button id="planQUnv" onclick="planQuick('unvisited')">Unvisited</button>
     </div>
     <label class="planOpt">
       <input type="checkbox" id="planAuto" onchange="setAutoOrder(this.checked)">
-      <span>Auto-optimise the walking order (shortest route)</span>
+      <span id="planAutoLabel">Auto-optimise the walking order (shortest route)</span>
     </label>
     <div class="planHint" id="planHint">Untick to arrange the stops yourself with ↑ ↓.</div>
     <div id="planList" class="planList"></div>
-    <button class="planApply" onclick="applyPlan()">Apply route</button>
+    <button class="planApply" id="planApplyBtn" onclick="applyPlan()">Apply route</button>
   </div>
 </div>
 
@@ -935,6 +1071,25 @@ const PLACES = [
 ];
 
 /* ============================================================
+   THE SECRET STOP — hidden until the visitor earns enough points.
+   Not counted in the 11-stop trail; it's a bonus discovery.
+   ============================================================ */
+const SECRET_POINTS = 400;
+const SECRET = {
+  id:"popiah", cat:"food", icon:"🌯", color:"#c9a227", secret:true,
+  name:"Kway Guan Huat Joo Chiat Popiah",
+  addr:"95 Joo Chiat Rd, S'pore 427389",
+  lat:1.31043, lng:103.90115,
+  desc:"A hidden gem trading since 1938 — this family still hand-makes every popiah skin from scratch, one crepe at a time on a hot griddle.",
+  known:"<b>Must-try:</b> the DIY popiah set. One of the National Heritage Board's Street Corner Heritage Galleries."
+};
+function secretUnlocked(){ return !!state.secretUnlocked; }
+/* every landmark currently visible to this visitor */
+function activePlaces(){ return secretUnlocked() ? PLACES.concat([SECRET]) : PLACES.slice(); }
+/* progress is always measured against the 11 main stops */
+function visitedMain(){ return state.visited.filter(id=>PLACES.some(p=>p.id===id)).length; }
+
+/* ============================================================
    3.  BADGES
    ============================================================ */
 const BADGES = [
@@ -942,7 +1097,8 @@ const BADGES = [
   { id:"foodie",  ic:"🍜", name:"Katong Foodie", need:s=>s.visited.filter(id=>place(id).cat==='food').length>=3, desc:"Visit 3 food spots" },
   { id:"culture", ic:"🎎", name:"Heritage Buff", need:s=>s.visited.filter(id=>place(id).cat==='culture').length>=3, desc:"Visit 3 culture spots" },
   { id:"half",    ic:"🌟", name:"Halfway Hero",  need:s=>s.visited.length>=Math.ceil(PLACES.length/2), desc:"Reach half the trail" },
-  { id:"master",  ic:"👑", name:"Joo Chiat Master", need:s=>s.visited.length>=PLACES.length, desc:"Complete the whole trail" },
+  { id:"master",  ic:"👑", name:"Joo Chiat Master", need:s=>visitedMain()>=PLACES.length, desc:"Complete the whole trail" },
+  { id:"secret",  ic:"🕵️", name:"Secret Finder",   need:s=>s.visited.includes("popiah"), desc:"Discover the hidden stop" },
 ];
 
 /* ============================================================
@@ -959,13 +1115,15 @@ function load(){
   s.badges  = s.badges  || [];
   s.vouchers = s.vouchers || {};   // key -> {title, desc, code, redeemed, place}
   // personalised route: which stops, and in what order
-  if(Array.isArray(s.routeStops)) s.routeStops = s.routeStops.filter(id=>PLACES.some(p=>p.id===id));
+  if(Array.isArray(s.routeStops)) s.routeStops = s.routeStops.filter(id=>PLACES.some(p=>p.id===id) || id===SECRET.id);
   if(!Array.isArray(s.routeStops) || !s.routeStops.length) s.routeStops = PLACES.map(p=>p.id);
   s.routeCustomOrder = !!s.routeCustomOrder;
+  s.quiz = s.quiz || {};           // placeId -> true once answered correctly
+  s.secretUnlocked = !!s.secretUnlocked;
   return s;
 }
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-function place(id){ return PLACES.find(p=>p.id===id); }
+function place(id){ return PLACES.find(p=>p.id===id) || (id===SECRET.id ? SECRET : null); }
 
 /* ============================================================
    5.  MAP
@@ -1003,6 +1161,7 @@ function initMap(){
     m.addTo(map);
     markers[p.id]=m;
   });
+  addSecretMarker();
   refreshMarkers();
   addHubMarker();
   updateStartBtn();
@@ -1016,9 +1175,28 @@ function initMap(){
   });
 }
 
+/* ---- Secret stop: reveal once enough points are earned ---- */
+function addSecretMarker(){
+  if(!map || markers[SECRET.id] || !secretUnlocked()) return;
+  const m = L.marker([SECRET.lat,SECRET.lng],{icon:markerIcon(SECRET),title:SECRET.name});
+  m.on("click", ()=>openPanel(SECRET.id));
+  m.addTo(map);
+  markers[SECRET.id]=m;
+}
+function checkSecretUnlock(){
+  if(state.secretUnlocked || state.points < SECRET_POINTS) return;
+  state.secretUnlocked = true;
+  if(!state.routeStops.includes(SECRET.id)) state.routeStops.push(SECRET.id);
+  save();
+  addSecretMarker(); refreshMarkers(); renderList(); renderRewards();
+  fireConfetti();
+  toast(`🔓 SECRET STOP UNLOCKED — ${SECRET.name}!`);
+  if(map) setTimeout(()=>{ map.panTo([SECRET.lat,SECRET.lng]); }, 600);
+}
+
 function refreshMarkers(){
   if(!map) return;
-  PLACES.forEach(p=>{
+  activePlaces().forEach(p=>{
     const m=markers[p.id]; if(!m) return;
     const show = currentFilter==="all" || currentFilter===p.cat;
     if(show){ if(!map.hasLayer(m)) m.addTo(map); }
@@ -1052,7 +1230,7 @@ function addHubMarker(){
 }
 function updateStartBtn(){
   const b=document.getElementById("startToggle"); if(!b) return;
-  b.textContent = routeStart==="hub" ? "🏁 Start: Hub" : "📍 Start: Me";
+  b.textContent = t(routeStart==="hub" ? "start_hub" : "start_me");
   b.classList.toggle("me", routeStart==="me");
 }
 function setRouteStart(mode){
@@ -1067,16 +1245,42 @@ function toggleRouteStart(){ setRouteStart(routeStart==="hub" ? "me" : "hub"); }
 /* Build the walking path from the chosen start point, connecting the
    remaining stops nearest-first. */
 /* The stops to visit and where the walk begins */
-function routeInputs(){
-  // only the stops the visitor chose, kept in the order they arranged them
+/* Should the guided path be drawn right now?
+   Default: shown while stops remain, hidden once all are visited.
+   If the visitor flips the toggle, honour their explicit choice. */
+function routeVisible(){
   const chosen = state.routeStops.map(id=>place(id)).filter(Boolean);
   const shown = chosen.filter(p=> currentFilter==="all"||currentFilter===p.cat);
   const remaining = shown.filter(p=>!state.visited.includes(p.id));
-  const pool = (remaining.length ? remaining : shown).slice();
+  return (state.routeOn===undefined || state.routeOn===null) ? (remaining.length>0) : !!state.routeOn;
+}
+function routeInputs(){
+  const chosen = state.routeStops.map(id=>place(id)).filter(Boolean);
+  const shown = chosen.filter(p=> currentFilter==="all"||currentFilter===p.cat);
+  const remaining = shown.filter(p=>!state.visited.includes(p.id));
   const origin = (routeStart==="me" && userPos)
     ? {lat:userPos.lat, lng:userPos.lng}
     : {lat:HUB.lat,     lng:HUB.lng};
+  // if the visitor turned the route on after finishing, retrace the full set
+  const pool = routeVisible() ? (remaining.length ? remaining : shown).slice() : [];
   return {origin, pool};
+}
+const ROUTE_LBL = {
+  en:{on:"🧭 Guided route: On", off:"🧭 Guided route: Off"},
+  zh:{on:"🧭 导览路线：开", off:"🧭 导览路线：关"},
+  ms:{on:"🧭 Laluan berpandu: Hidup", off:"🧭 Laluan berpandu: Mati"},
+  ja:{on:"🧭 ガイド経路：オン", off:"🧭 ガイド経路：オフ"},
+};
+function updateRouteBtn(){
+  const b=document.getElementById("routeToggle"); if(!b) return;
+  const on=routeVisible(); const L=ROUTE_LBL[lang]||ROUTE_LBL.en;
+  b.classList.toggle("on", on);
+  b.textContent = on ? L.on : L.off;
+}
+function toggleRoute(){
+  state.routeOn = !routeVisible(); save();
+  updateRouteBtn();
+  if(map) drawRoute();
 }
 function routeSig(origin, pool){
   return (state.routeCustomOrder?"C|":"A|") + origin.lat.toFixed(4)+","+origin.lng.toFixed(4)
@@ -1263,8 +1467,9 @@ async function buildRoute(origin, pool, sig){
 
 function drawRoute(){
   if(!map) return;
+  updateRouteBtn();
   const {origin, pool} = routeInputs();
-  if(!pool.length){ clearRoute(); return; }
+  if(!pool.length){ clearRoute(); if(Object.keys(routeIndex).length){ routeIndex={}; refreshMarkers(); } return; }
   const sig = routeSig(origin, pool);
 
   if(geomCache[sig]){ paintRoute(geomCache[sig], false); return; }
@@ -1440,6 +1645,8 @@ function toggleBus(){ setBus(!busOn); }
 let planStops = [], planAuto = true;      // working copy while the dialog is open
 
 function openPlanner(){
+  if(!state.nudgeSeen){ state.nudgeSeen=true; save(); }
+  document.getElementById("planNudge").classList.remove("show");
   planStops = state.routeStops.slice();
   planAuto  = !state.routeCustomOrder;
   document.getElementById("planAuto").checked = planAuto;
@@ -1451,7 +1658,7 @@ function closePlanner(){ document.getElementById("planModal").classList.remove("
 function renderPlanner(){
   const list=document.getElementById("planList"); list.innerHTML="";
   const included = planStops.map(id=>place(id)).filter(Boolean);
-  const excluded = PLACES.filter(p=>!planStops.includes(p.id));
+  const excluded = activePlaces().filter(p=>!planStops.includes(p.id));
   const row=(p, on, pos)=>{
     const el=document.createElement("div");
     el.className="planRow"+(on?"":" off");
@@ -1471,9 +1678,7 @@ function renderPlanner(){
   };
   included.forEach((p,i)=>row(p,true,i+1));
   excluded.forEach(p=>row(p,false,0));
-  document.getElementById("planHint").textContent = planAuto
-    ? "The shortest walking order is worked out for you."
-    : "Arrange the stops yourself using the ↑ ↓ buttons.";
+  document.getElementById("planHint").textContent = t(planAuto ? "plan_hint_auto" : "plan_hint_manual");
 }
 function toggleStop(id){
   const i=planStops.indexOf(id);
@@ -1488,11 +1693,12 @@ function moveStop(id, dir){
 }
 function setAutoOrder(on){ planAuto=on; renderPlanner(); }
 function planQuick(kind){
-  if(kind==="all")       planStops = PLACES.map(p=>p.id);
-  else if(kind==="food") planStops = PLACES.filter(p=>p.cat==="food").map(p=>p.id);
-  else if(kind==="culture") planStops = PLACES.filter(p=>p.cat==="culture").map(p=>p.id);
-  else if(kind==="unvisited") planStops = PLACES.filter(p=>!state.visited.includes(p.id)).map(p=>p.id);
-  if(!planStops.length) planStops = PLACES.map(p=>p.id);
+  const all = activePlaces();
+  if(kind==="all")       planStops = all.map(p=>p.id);
+  else if(kind==="food") planStops = all.filter(p=>p.cat==="food").map(p=>p.id);
+  else if(kind==="culture") planStops = all.filter(p=>p.cat==="culture").map(p=>p.id);
+  else if(kind==="unvisited") planStops = all.filter(p=>!state.visited.includes(p.id)).map(p=>p.id);
+  if(!planStops.length) planStops = all.map(p=>p.id);
   renderPlanner();
 }
 function applyPlan(){
@@ -1530,10 +1736,10 @@ function locateMe(){
 function renderList(){
   const list=document.getElementById("list");
   list.innerHTML="";
-  PLACES.filter(p=>currentFilter==="all"||currentFilter===p.cat).forEach(p=>{
+  activePlaces().filter(p=>currentFilter==="all"||currentFilter===p.cat).forEach(p=>{
     const visited=state.visited.includes(p.id);
     const el=document.createElement("div");
-    el.className="poi"+(visited?" visited":"")+(activeId===p.id?" active":"");
+    el.className="poi"+(visited?" visited":"")+(activeId===p.id?" active":"")+(p.secret?" secret":"");
     el.innerHTML=`
       <div class="thumb" style="background:${p.color}">${p.icon}</div>
       <div class="meta">
@@ -1657,6 +1863,7 @@ function openPanel(id){
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=walking${origin?`&origin=${origin}`:""}`,"_blank");
   };
 
+  updateQuizBtn();
   updateCheckBtn();
   document.getElementById("panel").classList.add("open");
 
@@ -1666,6 +1873,20 @@ function openPanel(id){
 function closePanel(){
   document.getElementById("panel").classList.remove("open");
   activeId=null; refreshMarkers(); renderList();
+}
+
+function updateQuizBtn(){
+  const btn=document.getElementById("pQuiz"); if(!btn || !activeId) return;
+  if(!QUIZ[activeId]){ btn.style.display="none"; return; }
+  btn.style.display="flex";
+  const u=qzui();
+  if(quizDone(activeId)){
+    btn.className="btn quiz done"; btn.textContent=u.answered; btn.disabled=true; btn.onclick=null;
+  } else {
+    btn.className="btn quiz"; btn.disabled=false;
+    btn.textContent=`${u.btn}  ·  ${u.pts}`;
+    btn.onclick=()=>openQuiz(activeId);
+  }
 }
 
 function updateCheckBtn(){
@@ -1680,6 +1901,13 @@ function updateCheckBtn(){
     return;
   }
   btn.disabled=false;
+  // admin: check in instantly, no QR scan and no location needed
+  if(testMode){
+    btn.className="btn check"; btn.textContent="🔑 Admin check-in (no QR / GPS)";
+    note.textContent="Admin mode is on — this bypasses the normal checks.";
+    btn.onclick=()=>verifyAndCheckIn(p.id);
+    return;
+  }
   btn.className="btn scan"; btn.textContent=t("b_scan");
   if(userPos){
     const d=distance(userPos.lat,userPos.lng,p.lat,p.lng);
@@ -1715,6 +1943,10 @@ function checkIn(id, auto){
   toast(`${p.icon} Checked in at ${p.name}! +${POINTS_PER_VISIT} pts${auto?" (auto)":""}`);
   checkBadges();
   checkMilestoneVouchers();
+  setTimeout(checkSecretUnlock, 1400);
+  updateQuizBtn();
+  // offer the bonus question once they've actually arrived
+  if(QUIZ[id] && !quizDone(id)) setTimeout(()=>openQuiz(id), 2200);
 }
 
 /* ============================================================
@@ -1731,12 +1963,12 @@ function grantVoucher(key, data){
   return true;
 }
 /* bonus vouchers unlocked at trail milestones */
+/* Vouchers only ever come from food stalls, plus two trail-wide bonuses.
+   Culture landmarks award points, stamps and badges — but no vouchers. */
 const MILESTONE_VOUCHERS = [
-  { key:"m_start3", need:s=>s.visited.length>=3, value:5, title:"$5 OFF",
-    desc:"$5 off any Katong–Joo Chiat cultural food stall" },
-  { key:"m_culture3", need:s=>s.visited.filter(id=>place(id)&&place(id).cat==="culture").length>=3, value:5, title:"$5 OFF",
-    desc:"$5 off a local Peranakan dish — Heritage Explorer bonus" },
-  { key:"m_all", need:s=>s.visited.length>=PLACES.length, value:10, title:"$10 OFF",
+  { key:"m_food3", need:s=>s.visited.filter(id=>place(id)&&place(id).cat==="food").length>=3, value:5, title:"$5 OFF",
+    desc:"$5 off any Katong–Joo Chiat food stall — Foodie bonus" },
+  { key:"m_all", need:s=>visitedMain()>=PLACES.length, value:10, title:"$10 OFF",
     desc:"$10 off a Peranakan feast — you completed the whole trail!" },
 ];
 function checkMilestoneVouchers(){
@@ -1746,6 +1978,61 @@ function checkMilestoneVouchers(){
     }
   });
 }
+/* ============================================================
+   HERITAGE QUIZ  —  learning, disguised as a bonus round
+   ============================================================ */
+let quizPlaceId = null;
+function openQuiz(id){
+  const q = qz(id); const p = place(id);
+  if(!q || !p) return;
+  quizPlaceId = id;
+  document.getElementById("quizWho").textContent = `${qzui().title} · ${p.name}`;
+  document.getElementById("quizQ").textContent = q.q;
+  const fb = document.getElementById("quizFb"); fb.className="quizFb"; fb.textContent="";
+  document.getElementById("quizNext").textContent = qzui().close;
+
+  // shuffle so the right answer isn't always in the same slot
+  const opts = [{t:q.a, ok:true}, ...q.b.map(t=>({t, ok:false}))];
+  for(let i=opts.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
+
+  const box = document.getElementById("quizOpts"); box.innerHTML="";
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.className="quizOpt"; b.textContent=o.t;
+    b.onclick=()=>answerQuiz(o.ok, b);
+    box.appendChild(b);
+  });
+  document.getElementById("quizModal").classList.add("open");
+}
+function answerQuiz(correct, btn){
+  const q = qz(quizPlaceId); const u = qzui();
+  const buttons = document.querySelectorAll("#quizOpts .quizOpt");
+  buttons.forEach(b=>{ b.disabled=true; if(b.textContent===q.a) b.classList.add("right"); });
+  if(!correct) btn.classList.add("wrong");
+
+  const fb=document.getElementById("quizFb");
+  fb.className = "quizFb show " + (correct?"ok":"no");
+  fb.textContent = (correct ? `${u.ok} (${u.pts}) ` : `${u.no} `) + q.why;
+
+  if(correct && !quizDone(quizPlaceId)){
+    state.quiz[quizPlaceId]=true;
+    state.points += QUIZ_BONUS;
+    save(); updateScore(); renderRewards(); renderList();
+    fireConfetti();
+    setTimeout(checkSecretUnlock, 800);
+    if(quizAllDone() && grantVoucher("m_scholar",{value:5,title:"$5 OFF",
+        desc:"$5 off — Heritage Scholar: every quiz answered correctly!",milestone:true})){
+      setTimeout(()=>toast("🎓 Heritage Scholar! Bonus voucher unlocked."), 900);
+      renderRewards();
+    }
+  }
+  document.getElementById("quizNext").textContent = qzui().done;
+}
+function closeQuiz(){
+  document.getElementById("quizModal").classList.remove("open");
+  if(activeId) updateQuizBtn();
+}
+
 function redeemVoucher(key){
   const v=state.vouchers[key]; if(!v || v.redeemed) return;
   if(!confirm("Redeem this voucher now? Only do this in front of the staff — it can't be undone.")) return;
@@ -1759,18 +2046,48 @@ function redeemVoucher(key){
    GPS is physically within CHECKIN_RADIUS_M of the attraction, so
    scanning the QR from home (or tapping the button remotely) fails.
    ------------------------------------------------------------ */
-let testMode=false;
+/* ============================================================
+   HIDDEN ADMIN MODE
+   Unlock: tap the header logo 5 times quickly, then enter the code.
+   Or open the site with  ?admin=<code>  in the address.
+   Admin check-ins skip both the QR scan and the GPS location check.
+   NOTE: this is a demo convenience, not real security — anyone can read
+   the code by viewing the page source.
+   ============================================================ */
+const ADMIN_CODE = "warwick2026";
+let testMode=false;                       // "admin mode" internally
+
 function setTestMode(on){
   testMode=on;
   document.body.classList.toggle("test-on", on);
-  const b=document.getElementById("testEnableBtn");
-  if(b){
-    b.textContent = on ? "✅ Test mode is ON — tap to disable" : "🧪 Enable test mode (simulate being on-site)";
-    b.style.background = on ? "#34b37a" : "#8a5cc4";
-  }
-  toast(on ? "🧪 Test mode ON — check-ins now skip the GPS check." : "Test mode off — real GPS location required again.");
+  toast(on ? "🔑 Admin mode ON — check-ins bypass QR & GPS."
+           : "Admin mode off — QR scan and GPS required again.");
+  if(activeId) updateCheckBtn();
 }
 function toggleTestMode(){ setTestMode(!testMode); }
+
+let adminTaps=0, adminTapTimer=null;
+function adminTap(){
+  adminTaps++;
+  clearTimeout(adminTapTimer);
+  adminTapTimer=setTimeout(()=>{ adminTaps=0; }, 2500);
+  if(adminTaps>=5){
+    adminTaps=0;
+    if(testMode){ setTestMode(false); return; }     // 5 taps again = exit
+    const c=prompt("Admin code:");
+    if(c===ADMIN_CODE) setTestMode(true);
+    else if(c!==null) toast("Incorrect admin code.");
+  }
+}
+function checkAdminParam(){
+  try{
+    const p=new URLSearchParams(location.search).get("admin");
+    if(p===ADMIN_CODE){
+      history.replaceState(null,"",location.pathname);
+      setTestMode(true);
+    }
+  }catch(e){}
+}
 
 function verifyAndCheckIn(id){
   const p=place(id);
@@ -1804,7 +2121,7 @@ function verifyAndCheckIn(id){
     pos=>{
       userPos={lat:pos.coords.latitude, lng:pos.coords.longitude};
       document.getElementById("gps").classList.add("on");
-      document.getElementById("gpsText").textContent="Location on";
+      document.getElementById("gpsText").textContent=t("gps_on");
       if(map){
         const uIcon=L.divIcon({className:"",html:'<div class="user-dot"></div>',iconSize:[16,16],iconAnchor:[8,8]});
         if(!userMarker){ userMarker=L.marker([userPos.lat,userPos.lng],{icon:uIcon,zIndexOffset:1000}).addTo(map); }
@@ -1829,11 +2146,11 @@ function checkBadges(){
 
 function updateScore(){
   document.getElementById("pts").textContent=state.points;
-  document.getElementById("visitCount").textContent=state.visited.length;
+  document.getElementById("visitCount").textContent=visitedMain();
   document.getElementById("total").textContent=PLACES.length;
   // mobile map stats pill
   const mp=document.getElementById("mPts"); if(mp) mp.textContent=state.points;
-  const mv=document.getElementById("mVisit"); if(mv) mv.textContent=state.visited.length;
+  const mv=document.getElementById("mVisit"); if(mv) mv.textContent=visitedMain();
   const mt=document.getElementById("mTotal"); if(mt) mt.textContent=PLACES.length;
 }
 
@@ -1843,7 +2160,7 @@ function renderVouchers(){
   const active=keys.filter(k=>!state.vouchers[k].redeemed).length;
   const cnt=document.getElementById("voucherCount"); if(cnt) cnt.textContent=active;
   if(keys.length===0){
-    wrap.innerHTML=`<div class="voucherEmpty">No vouchers yet 🍜<br><span>Check in at a food spot to earn $5 off — or collect stamps for bonus vouchers.</span></div>`;
+    wrap.innerHTML=`<div class="voucherEmpty">${t("v_empty1")}<br><span>${t("v_empty2")}</span></div>`;
     return;
   }
   // newest first
@@ -1859,19 +2176,36 @@ function renderVouchers(){
         <div class="vDesc">${v.desc}</div>
         <div class="vCode">CODE: ${v.code}</div>
         ${v.redeemed
-          ? `<div class="vStamp">REDEEMED</div>`
-          : `<button class="vRedeem" data-k="${k}">Show to staff → tap to redeem</button>`}
+          ? `<div class="vStamp">${t("v_redeemed")}</div>`
+          : `<button class="vRedeem" data-k="${k}">${t("v_show")}</button>`}
       </div>`;
     wrap.appendChild(el);
   });
   wrap.querySelectorAll(".vRedeem").forEach(btn=>btn.onclick=()=>redeemVoucher(btn.dataset.k));
 }
 
+function renderCertSlot(){
+  const slot=document.getElementById("certSlot"); if(!slot) return;
+  const left = PLACES.length - visitedMain();
+  const quizzes = PLACES.filter(p=>quizDone(p.id)).length;
+  const secret = secretUnlocked()
+    ? (state.visited.includes(SECRET.id)
+        ? `<div class="secretNote found">🕵️ Secret stop found — ${SECRET.name}!</div>`
+        : `<div class="secretNote open">🔓 Secret stop revealed on the map. Go find it!</div>`)
+    : `<div class="secretNote">🔒 A secret 12th stop unlocks at <b>${SECRET_POINTS} points</b> — you have <b>${state.points}</b>.</div>`;
+  slot.innerHTML = secret + ((left<=0)
+    ? `<button class="certBtn" style="width:100%;margin-top:12px;padding:15px;" onclick="openCert()">${t("cert_get")}</button>`
+    : `<div class="certLocked">🏆 Certificate unlocks after all ${PLACES.length} stops — ${left} to go.
+        <br>🧠 Quizzes answered: ${quizzes} / ${PLACES.length}</div>`);
+}
+
 function renderRewards(){
   renderVouchers();
-  const pct = Math.round(state.visited.length/PLACES.length*100);
+  renderCertSlot();
+  const done = visitedMain();
+  const pct = Math.round(done/PLACES.length*100);
   document.getElementById("progFill").style.width=pct+"%";
-  document.getElementById("progText").textContent=`${state.visited.length} / ${PLACES.length} · ${pct}%`;
+  document.getElementById("progText").textContent=`${done} / ${PLACES.length} · ${pct}%`;
   const grid=document.getElementById("badgeGrid"); grid.innerHTML="";
   BADGES.forEach(b=>{
     const earned=state.badges.includes(b.id);
@@ -1902,7 +2236,7 @@ const TILE_MOTIFS = [
   c=>`<g fill="none" stroke="${c}" stroke-width="4"><path d="M20 35H80M20 65H80M35 20V80M65 20V80"/></g><circle cx="50" cy="50" r="7" fill="${c}"/>`,
 ];
 function tileSVG(p, earned){
-  const i=PLACES.indexOf(p);
+  const i = p.secret ? 3 : PLACES.indexOf(p);
   const c=earned ? p.color : "#cfc7ba";
   const bg=earned ? "#fff8ef" : "#efeae2";
   const rot=(i*37)%2 ? 0 : 45;
@@ -1913,6 +2247,98 @@ function tileSVG(p, earned){
     <g transform="rotate(${rot} 50 50)" opacity="${earned?1:.55}">${motif}</g>
   </svg>`;
 }
+/* ============================================================
+   COMPLETION CERTIFICATE  —  shareable proof of finishing the trail
+   ============================================================ */
+function certCode(name){
+  let h=0; const s=name+"|"+state.visited.join(",");
+  for(let i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))>>>0; }
+  return "WK-"+h.toString(36).toUpperCase().slice(0,8);
+}
+function certName(){
+  if(state.user && state.user.name) return state.user.name;
+  const n = prompt("Name to print on your certificate:","");
+  if(n && n.trim()){
+    state.user = state.user || {}; state.user.name = n.trim(); save(); updateAccountUI();
+    return n.trim();
+  }
+  return "A Katong Explorer";
+}
+function certSVG(name){
+  const W=1000,H=700;
+  const date = new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});
+  const code = certCode(name);
+  // a row of the tiles they earned
+  const tiles = PLACES.map((p,i)=>{
+    const motif = TILE_MOTIFS[i % TILE_MOTIFS.length](p.color);
+    const x = 70 + (i%6)*145, y = 400 + Math.floor(i/6)*112;
+    return `<g transform="translate(${x},${y}) scale(0.82)">
+      <rect x="3" y="3" width="94" height="94" rx="12" fill="#fff8ef" stroke="${p.color}" stroke-width="3"/>
+      ${motif}</g>`;
+  }).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+    <rect width="${W}" height="${H}" fill="#fdf6ea"/>
+    <rect x="18" y="18" width="${W-36}" height="${H-36}" rx="18" fill="none" stroke="#0f9b8e" stroke-width="4"/>
+    <rect x="32" y="32" width="${W-64}" height="${H-64}" rx="12" fill="none" stroke="#ef6f5c" stroke-width="1.5" opacity=".7"/>
+    <text x="${W/2}" y="98" text-anchor="middle" font-family="Georgia,serif" font-size="21" letter-spacing="5" fill="#8a7a5e">WARWICK INC</text>
+    <text x="${W/2}" y="160" text-anchor="middle" font-family="Georgia,serif" font-size="40" font-weight="bold" fill="#0f9b8e">${t("cert_title")}</text>
+    <line x1="330" y1="185" x2="670" y2="185" stroke="#f4b942" stroke-width="3"/>
+    <text x="${W/2}" y="232" text-anchor="middle" font-family="Georgia,serif" font-size="19" fill="#6b6255">${t("cert_certifies")}</text>
+    <text x="${W/2}" y="292" text-anchor="middle" font-family="Georgia,serif" font-size="40" font-style="italic" fill="#23272e">${String(name).replace(/[<>&]/g,"")}</text>
+    <line x1="250" y1="312" x2="750" y2="312" stroke="#e0d7c8" stroke-width="2"/>
+    <text x="${W/2}" y="352" text-anchor="middle" font-family="Georgia,serif" font-size="19" fill="#6b6255">${t("cert_walked").replace("%n",PLACES.length)}</text>
+    ${tiles}
+    <text x="70" y="${H-52}" font-family="Georgia,serif" font-size="15" fill="#8a7a5e">${date}</text>
+    <text x="${W-70}" y="${H-52}" text-anchor="end" font-family="monospace" font-size="14" fill="#8a7a5e">${code}</text>
+    <text x="${W/2}" y="${H-52}" text-anchor="middle" font-family="Georgia,serif" font-size="15" fill="#ef6f5c">${t("cert_tag")}</text>
+  </svg>`;
+}
+function openCert(){
+  if(visitedMain() < PLACES.length){
+    toast(`Finish all ${PLACES.length} stops to unlock your certificate.`); return;
+  }
+  const name = certName();
+  document.getElementById("certPreview").innerHTML = certSVG(name);
+  document.getElementById("certModal").classList.add("open");
+}
+function closeCert(){ document.getElementById("certModal").classList.remove("open"); }
+function certToPng(cb){
+  const svg = document.getElementById("certPreview").innerHTML;
+  const blob = new Blob([svg],{type:"image/svg+xml;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = ()=>{
+    const c=document.createElement("canvas"); c.width=2000; c.height=1400;
+    const ctx=c.getContext("2d"); ctx.fillStyle="#fdf6ea"; ctx.fillRect(0,0,c.width,c.height);
+    ctx.drawImage(img,0,0,c.width,c.height);
+    URL.revokeObjectURL(url);
+    c.toBlob(b=>cb(b),"image/png");
+  };
+  img.onerror = ()=>{ URL.revokeObjectURL(url); toast("Couldn't render the certificate image."); };
+  img.src = url;
+}
+function downloadCert(){
+  certToPng(blob=>{
+    if(!blob) return;
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="warwick-katong-certificate.png";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+    toast("🏆 Certificate downloaded!");
+  });
+}
+function shareCert(){
+  certToPng(async blob=>{
+    if(!blob) return;
+    const file = new File([blob],"warwick-katong-certificate.png",{type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:"I completed the Katong–Joo Chiat Heritage Trail!"}); }
+      catch(e){}
+    } else { downloadCert(); }
+  });
+}
+
 function renderStampGrid(){
   const g=document.getElementById("stampGrid"); if(!g) return;
   g.innerHTML="";
@@ -1925,6 +2351,17 @@ function renderStampGrid(){
     if(earned) el.onclick=()=>{ showView("map"); openPanel(p.id); };
     g.appendChild(el);
   });
+  // the bonus secret tile, always shown — as a mystery until discovered
+  const found = state.visited.includes(SECRET.id);
+  const sc=document.createElement("div");
+  sc.className="stampCell secretCell"+(found?" earned":"");
+  sc.title = secretUnlocked() ? SECRET.name : "A secret stop…";
+  sc.innerHTML = found
+    ? `${tileSVG(SECRET,true)}<div class="stampName">${SECRET.name}</div>`
+    : `<div class="mysteryTile">${secretUnlocked()?"🕵️":"🔒"}</div>
+       <div class="stampName">${secretUnlocked()?"Find me!":`${SECRET_POINTS} pts`}</div>`;
+  if(found) sc.onclick=()=>{ showView("map"); openPanel(SECRET.id); };
+  g.appendChild(sc);
 }
 
 /* ============================================================
@@ -2008,6 +2445,75 @@ const I18N = {
     signin_btn:"保存して続行",email_vouchers:"✉️ 特典をメールで送る",
     sync_export:"⬆️ 同期コードを取得",sync_import:"⬇️ 同期コードを入力" },
 };
+
+/* additional UI strings (merged into I18N) */
+const I18N_MORE = {
+  en:{ qr_h2:"📷 QR Code Trail", qr_sub:"Scan a QR code at each spot to collect your stamp",
+    qr_how:"<b>How it works:</b> Print these QR codes and place one physically at each attraction. When a visitor scans a code, the site checks their phone's GPS and only awards the stamp if they're actually standing at that spot — so scanning from home won't work. Points, stamps and badges unlock only on-site.",
+    qr_scan:"📷 Scan a QR code now", qr_print:"🖨️ Print all QR codes",
+    ctrl_route:"Trail route", ctrl_plan:"🧭 Plan my route", ctrl_layers:"Map layers",
+    ctrl_mrt:"🚇 MRT stations", ctrl_bus:"🚌 Bus stops", ctrl_loc:"Your location",
+    start_hub:"🏁 Start: Hub", start_me:"📍 Start: Me",
+    gps_off:"Enable my location", gps_on:"Location on", gps_locating:"Locating…",
+    nudge_title:"🧭 Make it yours", nudge_text:"Pick which stops you want and the order to walk them.", nudge_btn:"Plan my route",
+    plan_title:"🧭 Plan my route", plan_all:"All stops", plan_food:"🍜 Food only", plan_culture:"🎎 Culture only", plan_unvisited:"Unvisited",
+    plan_auto:"Auto-optimise the walking order (shortest route)",
+    plan_hint_auto:"The shortest walking order is worked out for you.", plan_hint_manual:"Arrange the stops yourself using the ↑ ↓ buttons.",
+    plan_apply:"Apply route",
+    v_show:"Show to staff → tap to redeem", v_redeemed:"REDEEMED",
+    v_empty1:"No vouchers yet 🍜", v_empty2:"Check in at a food spot to earn $5 off — or collect stamps for bonus vouchers.",
+    cert_get:"🏆 Get your certificate", cert_title:"Certificate of Completion", cert_certifies:"This certifies that",
+    cert_walked:"has walked all %n stops of the Katong–Joo Chiat Heritage Trail", cert_tag:"Local stories, real experiences" },
+  zh:{ qr_h2:"📷 二维码路线", qr_sub:"在每个景点扫描二维码即可收集印章",
+    qr_how:"<b>运作方式：</b>打印这些二维码，在每个景点各放置一个。访客扫描时，网站会检查手机的GPS定位，只有在实地才会发放印章——因此在家扫描无效。积分、印章与徽章只能在现场解锁。",
+    qr_scan:"📷 立即扫描二维码", qr_print:"🖨️ 打印所有二维码",
+    ctrl_route:"行程路线", ctrl_plan:"🧭 规划我的路线", ctrl_layers:"地图图层",
+    ctrl_mrt:"🚇 地铁站", ctrl_bus:"🚌 巴士站", ctrl_loc:"你的位置",
+    start_hub:"🏁 起点：枢纽", start_me:"📍 起点：我",
+    gps_off:"开启我的定位", gps_on:"定位已开启", gps_locating:"定位中…",
+    nudge_title:"🧭 打造专属路线", nudge_text:"选择你想去的景点及游览顺序。", nudge_btn:"规划我的路线",
+    plan_title:"🧭 规划我的路线", plan_all:"全部景点", plan_food:"🍜 只看美食", plan_culture:"🎎 只看文化", plan_unvisited:"未到访",
+    plan_auto:"自动优化步行顺序（最短路线）",
+    plan_hint_auto:"已为你算出最短的步行顺序。", plan_hint_manual:"用 ↑ ↓ 按钮自行排列景点顺序。",
+    plan_apply:"应用路线",
+    v_show:"出示给店员 → 点击兑换", v_redeemed:"已兑换",
+    v_empty1:"还没有礼券 🍜", v_empty2:"在美食景点签到即可获得5元优惠——或收集印章赢取额外礼券。",
+    cert_get:"🏆 领取你的证书", cert_title:"完成证书", cert_certifies:"兹证明",
+    cert_walked:"已走完加东–如切文化路线全部 %n 个景点", cert_tag:"在地故事，真实体验" },
+  ms:{ qr_h2:"📷 Jejak Kod QR", qr_sub:"Imbas kod QR di setiap tempat untuk mengumpul cop",
+    qr_how:"<b>Cara ia berfungsi:</b> Cetak kod QR ini dan letak satu di setiap tarikan. Apabila pengunjung mengimbas kod, laman ini menyemak GPS telefon dan hanya memberi cop jika mereka benar-benar berada di situ — jadi mengimbas dari rumah tidak berkesan. Mata, cop dan lencana hanya dibuka di lokasi.",
+    qr_scan:"📷 Imbas kod QR sekarang", qr_print:"🖨️ Cetak semua kod QR",
+    ctrl_route:"Laluan jejak", ctrl_plan:"🧭 Rancang laluan saya", ctrl_layers:"Lapisan peta",
+    ctrl_mrt:"🚇 Stesen MRT", ctrl_bus:"🚌 Perhentian bas", ctrl_loc:"Lokasi anda",
+    start_hub:"🏁 Mula: Hab", start_me:"📍 Mula: Saya",
+    gps_off:"Hidupkan lokasi saya", gps_on:"Lokasi dihidupkan", gps_locating:"Mencari lokasi…",
+    nudge_title:"🧭 Jadikan ia milik anda", nudge_text:"Pilih tempat yang anda mahu dan turutan berjalan.", nudge_btn:"Rancang laluan saya",
+    plan_title:"🧭 Rancang laluan saya", plan_all:"Semua tempat", plan_food:"🍜 Makanan sahaja", plan_culture:"🎎 Budaya sahaja", plan_unvisited:"Belum dilawati",
+    plan_auto:"Optimum turutan berjalan secara automatik (laluan terpendek)",
+    plan_hint_auto:"Turutan berjalan terpendek dikira untuk anda.", plan_hint_manual:"Susun tempat sendiri dengan butang ↑ ↓.",
+    plan_apply:"Guna laluan",
+    v_show:"Tunjuk kepada staf → ketik untuk tebus", v_redeemed:"DITEBUS",
+    v_empty1:"Belum ada baucar 🍜", v_empty2:"Daftar di tempat makan untuk $5 potongan — atau kumpul cop untuk baucar bonus.",
+    cert_get:"🏆 Dapatkan sijil anda", cert_title:"Sijil Penamatan", cert_certifies:"Ini mengesahkan bahawa",
+    cert_walked:"telah menjejaki kesemua %n tempat Jejak Warisan Katong–Joo Chiat", cert_tag:"Kisah tempatan, pengalaman sebenar" },
+  ja:{ qr_h2:"📷 QRコード・トレイル", qr_sub:"各スポットのQRコードを読み取ってスタンプを集めよう",
+    qr_how:"<b>仕組み：</b>これらのQRコードを印刷し、各名所に1枚ずつ設置します。訪問者がコードを読み取ると、サイトが端末のGPSを確認し、実際にその場にいる場合のみスタンプを付与します——自宅からの読み取りは無効です。ポイント・スタンプ・バッジは現地でのみ解除されます。",
+    qr_scan:"📷 今すぐQRを読み取る", qr_print:"🖨️ すべてのQRを印刷",
+    ctrl_route:"トレイル経路", ctrl_plan:"🧭 経路を計画", ctrl_layers:"地図レイヤー",
+    ctrl_mrt:"🚇 MRT駅", ctrl_bus:"🚌 バス停", ctrl_loc:"現在地",
+    start_hub:"🏁 出発：ハブ", start_me:"📍 出発：現在地",
+    gps_off:"現在地をオンに", gps_on:"現在地オン", gps_locating:"位置を取得中…",
+    nudge_title:"🧭 自分好みに", nudge_text:"行きたいスポットと歩く順番を選べます。", nudge_btn:"経路を計画",
+    plan_title:"🧭 経路を計画", plan_all:"すべて", plan_food:"🍜 グルメのみ", plan_culture:"🎎 文化のみ", plan_unvisited:"未訪問",
+    plan_auto:"歩く順番を自動で最適化（最短ルート）",
+    plan_hint_auto:"最短の歩く順番を自動で算出します。", plan_hint_manual:"↑ ↓ ボタンで順番を自分で並べ替えます。",
+    plan_apply:"この経路にする",
+    v_show:"スタッフに提示 → タップで引換", v_redeemed:"引換済み",
+    v_empty1:"まだ特典はありません 🍜", v_empty2:"グルメスポットでチェックインして5ドル割引を——スタンプを集めるとボーナス特典も。",
+    cert_get:"🏆 証明書を受け取る", cert_title:"修了証明書", cert_certifies:"以下を証明します",
+    cert_walked:"カトン・ジューチャット文化トレイルの全%n箇所を歩き終えました", cert_tag:"地元の物語、本物の体験" },
+};
+Object.keys(I18N_MORE).forEach(l=>Object.assign(I18N[l], I18N_MORE[l]));
 
 /* Per-place translations + narration stories (audio uses the story text) */
 const PTX = {
@@ -2100,8 +2606,162 @@ const FACTS = {
   intan:{en:"The whole museum is the owner's private home — you're welcomed in for tea and stories among the antiques.",zh:"整座博物馆其实是馆主的私人住宅——你会被邀入内，在古董之间品茶听故事。",ms:"Seluruh muzium ialah rumah persendirian pemiliknya — anda dijemput masuk untuk minum teh dan mendengar cerita.",ja:"博物館はオーナーの自宅そのもの。骨董に囲まれてお茶と物語でもてなされます。"},
   katongantique:{en:"Its keeper is a passionate Peranakan expert who personally shares the story behind each heirloom.",zh:"守护者是一位热忱的土生华人专家，会亲自讲述每件传家宝背后的故事。",ms:"Penjaganya seorang pakar Peranakan yang bersemangat, berkongsi kisah di sebalik setiap pusaka.",ja:"館主は情熱的なプラナカンの専門家で、宝物一つ一つの物語を自ら語ってくれます。"},
   rumahbebe:{en:"Beading a single pair of Peranakan slippers here can take weeks of painstaking handwork.",zh:"在这里，为一双娘惹珠绣鞋串珠可能需要数周的精细手工。",ms:"Menganyam manik untuk sepasang kasut Peranakan di sini boleh mengambil masa berminggu-minggu.",ja:"ここでプラナカンのビーズ靴を一足仕上げるには、何週間もの緻密な手仕事がかかります。"},
+  popiah:{en:"Trading since 1938, the family still hand-makes every popiah skin — a hot griddle, a swipe of dough, one crepe at a time.",zh:"自1938年营业至今，这个家族仍手工制作每一张薄饼皮——在热铁板上，一抹面团，一张一张地摊出来。",ms:"Berniaga sejak 1938, keluarga ini masih membuat setiap kulit popiah dengan tangan — di atas kuali panas, sesapu doh, sehelai demi sehelai.",ja:"1938年創業。今も家族が熱した鉄板に生地をひと塗りし、ポピアの皮を一枚ずつ手作りしています。"},
 };
 function pfact(id){ const f=FACTS[id]; return f && (f[lang]||f.en); }
+
+/* ============================================================
+   HERITAGE QUIZ — one bonus question per landmark.
+   `a` is always the correct option; the choices are shuffled on screen.
+   ============================================================ */
+const QUIZ_BONUS = 25;
+const QUIZ = {
+  laksa:{ q:"What makes eating 328 Katong Laksa unusual?",
+    a:"The noodles are cut short, so you eat it with just a spoon",
+    b:["It is served chilled","The broth contains no coconut milk"],
+    why:"The rice noodles are snipped short — a spoon is all you need." },
+  chinmeechin:{ q:"Roughly when did Chin Mee Chin Confectionery first open?",
+    a:"The 1920s", b:["The 1970s","The 2000s"],
+    why:"Its round marble tables and mosaic floor date from the 1920s." },
+  kimchoo:{ q:"What is Kim Choo Kueh Chang best known for?",
+    a:"Hand-wrapped Nyonya rice dumplings", b:["Roast duck","Fish head curry"],
+    why:"Every bak chang is still wrapped by hand in bamboo leaves." },
+  guanhoesoon:{ q:"Opened in 1953, Guan Hoe Soon is Singapore's oldest what?",
+    a:"Peranakan restaurant", b:["Hawker centre","Bakery"],
+    why:"It has served Nyonya dishes to four generations of some families." },
+  birdsofparadise:{ q:"What inspires Birds of Paradise's gelato flavours?",
+    a:"Botanicals — flowers, herbs and fruit", b:["Breakfast cereals","Only traditional desserts"],
+    why:"Try White Chrysanthemum or Strawberry Basil, in a handmade thyme cone." },
+  koonseng:{ q:"When were the colourful Koon Seng Road shophouses built?",
+    a:"The 1920s", b:["The 1880s","The 1960s"],
+    why:"They were built in the 1920s for Peranakan families." },
+  senpaga:{ q:"How did Sri Senpaga Vinayagar Temple get its name?",
+    a:"From a senpaga (champak) tree on the site", b:["From its founder","From a nearby river"],
+    why:"The temple began in the 1850s beneath a senpaga tree." },
+  kuanimtng:{ q:"Kuan Im Tng Temple was built in 1921 on what kind of land?",
+    a:"A coconut plantation", b:["A rubber estate","Reclaimed seabed"],
+    why:"Look up at its roof — hand-made ceramic figurines line the ridge." },
+  intan:{ q:"What is unusual about The Intan museum?",
+    a:"It is the owner's private home", b:["It is entirely underground","It has no staff"],
+    why:"Owner Alvin Yapp welcomes guests personally, by appointment." },
+  katongantique:{ q:"What does the Katong Antique House mainly display?",
+    a:"Peranakan heirlooms — beaded slippers, kebaya, wedding treasures",
+    b:["Colonial military relics","Contemporary art"],
+    why:"Its passionate custodian shares the story behind each piece." },
+  rumahbebe:{ q:"Roughly how long can it take to bead one pair of Peranakan slippers?",
+    a:"Weeks of painstaking handwork", b:["A few minutes","Over a year"],
+    why:"The beadwork is astonishingly fine — ask about their workshops." },
+  popiah:{ q:"In what year did Kway Guan Huat begin making popiah on Joo Chiat Road?",
+    a:"1938", b:["1968","1995"],
+    why:"Founded in 1938 — and the skins are still made by hand today." },
+};
+function quizDone(id){ return !!(state.quiz && state.quiz[id]); }
+function quizAllDone(){ return PLACES.every(p=>quizDone(p.id)); }
+
+/* quiz translations (English lives in QUIZ above as the fallback) */
+const QUIZ_TX = {
+  zh:{
+    laksa:{q:"品尝328加东叻沙有什么与众不同之处？",a:"米粉被剪短，只需用汤匙就能享用",b:["它是冷食的","汤底不含椰浆"],why:"米粉被剪短——一支汤匙就够了。"},
+    chinmeechin:{q:"振美珍饼家大约在何时开业？",a:"1920年代",b:["1970年代","2000年代"],why:"店里的圆形大理石桌和马赛克地砖可追溯至1920年代。"},
+    kimchoo:{q:"金珠娘惹粽最著名的是什么？",a:"手工包裹的娘惹粽",b:["烧鸭","鱼头咖喱"],why:"每一颗粽子至今仍用竹叶手工包裹。"},
+    guanhoesoon:{q:"1953年开业的源顺记是新加坡最古老的什么？",a:"娘惹餐馆",b:["熟食中心","面包店"],why:"它为一些家庭供应娘惹菜已长达四代。"},
+    birdsofparadise:{q:"Birds of Paradise的冰淇淋口味灵感来自什么？",a:"植物——花卉、香草与水果",b:["早餐麦片","只有传统甜点"],why:"试试白菊或草莓罗勒，盛在手工百里香脆筒里。"},
+    koonseng:{q:"色彩缤纷的坤成路店屋建于何时？",a:"1920年代",b:["1880年代","1960年代"],why:"它们于1920年代为土生华人家庭而建。"},
+    senpaga:{q:"斯里森伯加韦纳耶加庙的名字从何而来？",a:"来自庙址上的一棵香花树（senpaga）",b:["来自它的创办人","来自附近的一条河"],why:"庙宇于1850年代在一棵香花树下创建。"},
+    kuanimtng:{q:"观音堂于1921年建在什么样的土地上？",a:"一片椰园",b:["一座橡胶园","填海造地"],why:"抬头看屋顶——屋脊上排列着手工陶瓷人像。"},
+    intan:{q:"The Intan博物馆有什么特别之处？",a:"它是馆主的私人住宅",b:["它完全在地下","它没有任何职员"],why:"馆主叶亚敏亲自接待访客，须提前预约。"},
+    katongantique:{q:"加东古董屋主要展示什么？",a:"土生华人传家宝——珠绣鞋、卡峇雅、婚嫁珍藏",b:["殖民时期军事文物","当代艺术"],why:"热忱的守护者会讲述每件藏品背后的故事。"},
+    rumahbebe:{q:"在这里为一双娘惹珠绣鞋串珠大约需要多久？",a:"数周的精细手工",b:["几分钟","一年多"],why:"珠绣工艺极为精细——不妨询问他们的工作坊。"},
+    popiah:{q:"Kway Guan Huat于哪一年开始在如切路制作薄饼？",a:"1938年",b:["1968年","1995年"],why:"创立于1938年——薄饼皮至今仍手工制作。"},
+  },
+  ms:{
+    laksa:{q:"Apa yang membuat cara makan 328 Katong Laksa luar biasa?",a:"Mihunnya dipotong pendek, jadi dimakan dengan sudu sahaja",b:["Ia dihidang sejuk","Kuahnya tiada santan"],why:"Mihun dipotong pendek — sudu sahaja sudah cukup."},
+    chinmeechin:{q:"Bila lebih kurang Chin Mee Chin Confectionery mula dibuka?",a:"Tahun 1920-an",b:["Tahun 1970-an","Tahun 2000-an"],why:"Meja marmar bulat dan lantai mozeknya bermula sejak 1920-an."},
+    kimchoo:{q:"Kim Choo Kueh Chang terkenal dengan apa?",a:"Bak chang Nyonya yang dibalut dengan tangan",b:["Itik panggang","Kari kepala ikan"],why:"Setiap bak chang masih dibalut dengan daun buluh secara manual."},
+    guanhoesoon:{q:"Dibuka pada 1953, Guan Hoe Soon tertua di Singapura dalam apa?",a:"Restoran Peranakan",b:["Pusat penjaja","Kedai roti"],why:"Ia menghidang masakan Nyonya kepada empat generasi sesetengah keluarga."},
+    birdsofparadise:{q:"Apa yang mengilhamkan perisa gelato Birds of Paradise?",a:"Botani — bunga, herba dan buah",b:["Bijirin sarapan","Hanya pencuci mulut tradisional"],why:"Cuba Krisan Putih atau Strawberi Selasih, dalam kon thyme buatan tangan."},
+    koonseng:{q:"Bila rumah kedai Jalan Koon Seng yang berwarna-warni dibina?",a:"Tahun 1920-an",b:["Tahun 1880-an","Tahun 1960-an"],why:"Ia dibina pada 1920-an untuk keluarga Peranakan."},
+    senpaga:{q:"Bagaimana Kuil Sri Senpaga Vinayagar mendapat namanya?",a:"Daripada pokok senpaga (cempaka) di tapak itu",b:["Daripada pengasasnya","Daripada sungai berdekatan"],why:"Kuil ini bermula pada 1850-an di bawah pokok senpaga."},
+    kuanimtng:{q:"Tokong Kuan Im Tng dibina pada 1921 di atas tanah jenis apa?",a:"Ladang kelapa",b:["Ladang getah","Tanah tebus guna"],why:"Dongak ke bumbungnya — patung seramik buatan tangan berbaris di birainya."},
+    intan:{q:"Apa yang luar biasa tentang muzium The Intan?",a:"Ia rumah persendirian pemiliknya",b:["Ia sepenuhnya di bawah tanah","Ia tiada kakitangan"],why:"Pemiliknya, Alvin Yapp, mengalu-alukan tetamu secara peribadi, dengan temujanji."},
+    katongantique:{q:"Apa yang dipamerkan terutamanya di Katong Antique House?",a:"Pusaka Peranakan — kasut manik, kebaya, khazanah perkahwinan",b:["Peninggalan tentera kolonial","Seni kontemporari"],why:"Penjaganya yang bersemangat berkongsi kisah di sebalik setiap barang."},
+    rumahbebe:{q:"Berapa lama untuk menganyam manik sepasang kasut Peranakan di sini?",a:"Berminggu-minggu kerja tangan yang teliti",b:["Beberapa minit","Lebih setahun"],why:"Kerja maniknya amat halus — tanya tentang bengkel mereka."},
+    popiah:{q:"Pada tahun apa Kway Guan Huat mula membuat popiah di Jalan Joo Chiat?",a:"1938",b:["1968","1995"],why:"Diasaskan pada 1938 — dan kulitnya masih dibuat dengan tangan hari ini."},
+  },
+  ja:{
+    laksa:{q:"328カトン・ラクサの食べ方で珍しいのは？",a:"麺が短く切られ、スプーンだけで食べる",b:["冷やして出される","スープにココナッツミルクが入っていない"],why:"米麺が短く切られていて、スプーンだけで十分です。"},
+    chinmeechin:{q:"チン・ミー・チンが最初に開業したのはおおよそいつ？",a:"1920年代",b:["1970年代","2000年代"],why:"丸い大理石のテーブルとモザイクの床は1920年代からのものです。"},
+    kimchoo:{q:"キム・チュー・クエ・チャンで最も有名なのは？",a:"手包みのニョニャ・ちまき",b:["ローストダック","フィッシュヘッドカレー"],why:"どのちまきも今なお竹の葉で手包みされています。"},
+    guanhoesoon:{q:"1953年開業のグアン・ホー・スーンは、シンガポール最古の何？",a:"プラナカン料理店",b:["ホーカーセンター","パン屋"],why:"一部の家族では四世代にわたりニョニャ料理を提供してきました。"},
+    birdsofparadise:{q:"バード・オブ・パラダイスのジェラートの味の着想源は？",a:"植物——花、ハーブ、果実",b:["朝食用シリアル","伝統的なデザートのみ"],why:"白菊やストロベリーバジルを、手作りのタイムコーンでどうぞ。"},
+    koonseng:{q:"色鮮やかなクーンセン通りのショップハウスが建てられたのは？",a:"1920年代",b:["1880年代","1960年代"],why:"1920年代にプラナカンの家族のために建てられました。"},
+    senpaga:{q:"スリ・センパガ・ヴィナヤガル寺院の名前の由来は？",a:"敷地にあったセンパガ（チャンパカ）の木から",b:["創建者から","近くの川から"],why:"寺院は1850年代、センパガの木の下で始まりました。"},
+    kuanimtng:{q:"観音堂は1921年、どんな土地に建てられた？",a:"ココナッツ農園",b:["ゴム園","埋め立て地"],why:"屋根を見上げて——棟に手作りの陶製人形が並んでいます。"},
+    intan:{q:"ジ・インタン博物館の珍しい点は？",a:"オーナーの自宅そのもの",b:["完全な地下にある","スタッフが一人もいない"],why:"オーナーのアルヴィン・ヤップさんが予約制で自ら案内します。"},
+    katongantique:{q:"カトン・アンティーク・ハウスが主に展示するのは？",a:"プラナカンの家宝——ビーズ靴、クバヤ、婚礼の宝物",b:["植民地時代の軍事遺物","現代アート"],why:"情熱的な館主が一つ一つの品の物語を語ってくれます。"},
+    rumahbebe:{q:"ここでプラナカンのビーズ靴を一足仕上げるのにかかる時間は？",a:"何週間もの緻密な手作業",b:["数分","一年以上"],why:"ビーズ細工はとても繊細——ワークショップも尋ねてみて。"},
+    popiah:{q:"クワイ・グアン・フアがジューチャット通りでポピア作りを始めたのは何年？",a:"1938年",b:["1968年","1995年"],why:"1938年創業——皮は今も手作りです。"},
+  },
+};
+const QZUI = {
+  en:{title:"🧠 Heritage quiz", ok:"Correct!", no:"Not quite.", pts:"+"+QUIZ_BONUS+" pts", close:"Close", done:"Done", btn:"🧠 Heritage quiz", answered:"🧠 Quiz answered ✓"},
+  zh:{title:"🧠 文化小测", ok:"答对了！", no:"不太对。", pts:"+"+QUIZ_BONUS+" 分", close:"关闭", done:"完成", btn:"🧠 文化小测", answered:"🧠 已作答 ✓"},
+  ms:{title:"🧠 Kuiz warisan", ok:"Betul!", no:"Kurang tepat.", pts:"+"+QUIZ_BONUS+" mata", close:"Tutup", done:"Selesai", btn:"🧠 Kuiz warisan", answered:"🧠 Kuiz dijawab ✓"},
+  ja:{title:"🧠 文化クイズ", ok:"正解！", no:"惜しい。", pts:"+"+QUIZ_BONUS+"ポイント", close:"閉じる", done:"完了", btn:"🧠 文化クイズ", answered:"🧠 回答済み ✓"},
+};
+function qz(id){ const base=QUIZ[id]; if(!base) return null; return (lang!=="en" && QUIZ_TX[lang] && QUIZ_TX[lang][id]) || base; }
+function qzui(){ return QZUI[lang] || QZUI.en; }
+
+/* ============================================================
+   "WHAT IS PERANAKAN CULTURE?" — the story the trail teaches,
+   framed as five threads visitors walk through.
+   ============================================================ */
+const CULTURE = {
+  en:{ title:"🏮 What is Peranakan culture?",
+    intro:"Katong–Joo Chiat is the heartland of Singapore's Peranakan community — descendants of early Chinese settlers who married local Malays and, over generations, blended Chinese, Malay and European ways into a culture all their own. This trail walks you through five threads of that heritage:",
+    threads:[
+      "🏘️ Architecture — pastel shophouses dressed in ornate tiles, along Koon Seng Road.",
+      "🍜 Food (Nyonya cuisine) — Chinese ingredients cooked with Malay spices: laksa, kueh, popiah.",
+      "👘 Crafts — beaded kasut manik slippers and the embroidered kebaya.",
+      "🛕 Faith — a diverse community, from the Hindu Sri Senpaga temple to the Buddhist Kuan Im Tng.",
+      "🏺 Home & family — kept alive in living museums like The Intan and Katong Antique House."
+    ] },
+  zh:{ title:"🏮 什么是土生华人（峇峇娘惹）文化？",
+    intro:"加东–如切是新加坡土生华人社群的核心。他们是早期华人移民与本地马来人通婚的后代，几代人将华族、马来与欧洲文化融合成独树一帜的传统。这条路线带你走过这份文化遗产的五条脉络：",
+    threads:[
+      "🏘️ 建筑——坤成路上装饰着精致瓷砖的柔和色调店屋。",
+      "🍜 美食（娘惹菜）——以马来香料烹调华族食材：叻沙、糕点、薄饼。",
+      "👘 工艺——珠绣鞋（kasut manik）与刺绣卡峇雅。",
+      "🛕 信仰——多元的社群，从印度庙斯里森伯加到佛教观音堂。",
+      "🏺 家庭生活——在The Intan、加东古董屋等活博物馆中得以保存。"
+    ] },
+  ms:{ title:"🏮 Apakah budaya Peranakan?",
+    intro:"Katong–Joo Chiat ialah jantung masyarakat Peranakan Singapura — keturunan peneroka Cina awal yang berkahwin dengan orang Melayu tempatan dan, selama beberapa generasi, menggabungkan cara Cina, Melayu dan Eropah menjadi budaya tersendiri. Jejak ini membawa anda menyusuri lima helai warisan itu:",
+    threads:[
+      "🏘️ Seni bina — rumah kedai pastel berjubin indah di Jalan Koon Seng.",
+      "🍜 Makanan (masakan Nyonya) — bahan Cina dimasak dengan rempah Melayu: laksa, kuih, popiah.",
+      "👘 Kraf — kasut manik dan kebaya bersulam.",
+      "🛕 Kepercayaan — masyarakat pelbagai, dari kuil Hindu Sri Senpaga ke tokong Buddha Kuan Im Tng.",
+      "🏺 Rumah & keluarga — terpelihara di muzium hidup seperti The Intan dan Katong Antique House."
+    ] },
+  ja:{ title:"🏮 プラナカン文化とは？",
+    intro:"カトン・ジューチャットは、シンガポールのプラナカン社会の中心地です。初期の華人移民と現地マレー人が結ばれ、何世代にもわたり中華・マレー・ヨーロッパの文化を融合させ、独自の文化を築きました。このトレイルでは、その遺産を5つの糸口からたどります：",
+    threads:[
+      "🏘️ 建築 — クーンセン通りの、装飾タイルをまとったパステルのショップハウス。",
+      "🍜 食（ニョニャ料理）— 中華の食材をマレーの香辛料で：ラクサ、クエ、ポピア。",
+      "👘 工芸 — ビーズ靴（カスッ・マニッ）と刺繍のクバヤ。",
+      "🛕 信仰 — 多様な社会。ヒンドゥーのスリ・センパガ寺院から仏教の観音堂まで。",
+      "🏺 家庭 — ジ・インタンやカトン・アンティーク・ハウスなど、生きた博物館に受け継がれる。"
+    ] },
+};
+function renderCulture(){
+  const c = CULTURE[lang] || CULTURE.en;
+  const tt=document.getElementById("cultureTitle"); if(tt) tt.textContent=c.title;
+  const intro=document.getElementById("cultureIntro"); if(intro) intro.textContent=c.intro;
+  const ul=document.getElementById("cultureThreads");
+  if(ul){ ul.innerHTML=""; c.threads.forEach(x=>{ const li=document.createElement("li"); li.textContent=x; ul.appendChild(li); }); }
+}
+function toggleCulture(){ document.getElementById("cultureCard").classList.toggle("open"); }
 
 /* ---- Rotating fun-fact card on the home page ---- */
 let factIdx = Math.floor(Math.random()*PLACES.length);
@@ -2162,8 +2822,23 @@ function applyLang(){
   const sn=document.getElementById("siName"); if(sn) sn.placeholder=t("signin_name");
   const se=document.getElementById("siEmail"); if(se) se.placeholder=t("signin_email");
   const sel=document.getElementById("langSel"); if(sel) sel.value=lang;
+  // QR tab
+  T("#qrH2","qr_h2"); T("#qrSub","qr_sub"); T("#qrScanBtn","qr_scan"); T("#qrPrintBtn","qr_print");
+  const qh=document.getElementById("qrHow"); if(qh) qh.innerHTML=t("qr_how");
+  // map control panel + toggles
+  T("#ctrlSecRoute","ctrl_route"); T("#ctrlPlan","ctrl_plan"); T("#ctrlSecLayers","ctrl_layers");
+  T("#mrtToggle","ctrl_mrt"); T("#busToggle","ctrl_bus"); T("#ctrlSecLoc","ctrl_loc");
+  updateStartBtn();
+  const gt=document.getElementById("gpsText"); if(gt) gt.textContent = t(document.getElementById("gps").classList.contains("on")?"gps_on":"gps_off");
+  // plan nudge + planner
+  T("#nudgeTitle","nudge_title"); T("#nudgeText","nudge_text"); T("#nudgeBtn","nudge_btn");
+  T("#planTitle","plan_title"); T("#planQAll","plan_all"); T("#planQFood","plan_food");
+  T("#planQCult","plan_culture"); T("#planQUnv","plan_unvisited");
+  T("#planAutoLabel","plan_auto"); T("#planApplyBtn","plan_apply");
+  updateRouteBtn();
   renderList();
   renderHomeFact();
+  renderCulture();
   if(document.body.classList.contains("view-rewards")) renderRewards();
   if(typeof lastPref!=="undefined" && lastPref && document.getElementById("recSection") && document.getElementById("recSection").style.display!=="none") choosePref(lastPref);
   if(activeId) openPanel(activeId);
@@ -2229,8 +2904,23 @@ function showView(view){
   else if(view==="qr"){ closePanel(); renderQRCodes(); }
   else if(view==="home"){ closePanel(); }
   else if(map){ setTimeout(()=>map.invalidateSize(),100); }
+  if(view==="map") maybeShowNudge();
+  else document.getElementById("planNudge").classList.remove("show");
   // on mobile, close the slide-out list when changing views
   document.getElementById("sidebar").classList.remove("open");
+}
+
+/* first time a visitor opens the map, invite them to plan their route */
+function maybeShowNudge(){
+  if(state.routeCustomOrder || state.nudgeSeen) return;   // already personalised or dismissed
+  setTimeout(()=>{
+    if(document.body.classList.contains("view-map"))
+      document.getElementById("planNudge").classList.add("show");
+  }, 700);
+}
+function dismissNudge(){
+  document.getElementById("planNudge").classList.remove("show");
+  state.nudgeSeen = true; save();
 }
 
 /* ============================================================
@@ -2289,7 +2979,7 @@ let qrRendered=false;
 function renderQRCodes(){
   if(qrRendered) return;              // build once
   const grid=document.getElementById("qrGrid"); grid.innerHTML="";
-  PLACES.forEach(p=>{
+  PLACES.concat([SECRET]).forEach(p=>{
     const card=document.createElement("div"); card.className="qrCard";
     card.innerHTML=`
       <div class="qrTitle">${p.icon} ${p.name}</div>
@@ -2363,7 +3053,7 @@ function handleCheckinParam(){
    ============================================================ */
 function startGPS(){
   if(!navigator.geolocation){ toast("Geolocation not supported on this device"); return; }
-  document.getElementById("gpsText").textContent="Locating…";
+  document.getElementById("gpsText").textContent=t("gps_locating");
   navigator.geolocation.watchPosition(pos=>{
     userPos={lat:pos.coords.latitude, lng:pos.coords.longitude};
     document.getElementById("gps").classList.add("on");
@@ -2382,7 +3072,7 @@ function startGPS(){
     // the check-in button — and only if this GPS position confirms they're
     // within range. Being nearby alone does nothing.
   }, err=>{
-    document.getElementById("gpsText").textContent="Enable my location";
+    document.getElementById("gpsText").textContent=t("gps_off");
     toast("Turn on location so we can confirm you're at each spot when you scan.");
   }, {enableHighAccuracy:true, maximumAge:5000, timeout:10000});
 }
@@ -2450,12 +3140,12 @@ document.getElementById("listToggle").onclick=()=>document.getElementById("sideb
 document.getElementById("listClose").onclick=()=>document.getElementById("sidebar").classList.remove("open");
 document.querySelectorAll(".prefBtns button").forEach(b=>b.onclick=()=>choosePref(b.dataset.pref));
 document.querySelector(".brand").style.cursor="pointer";
-document.querySelector(".brand").onclick=()=>showView("home");
+document.querySelector(".brand").onclick=()=>{ adminTap(); showView("home"); };
 document.getElementById("langSel").value=lang;
 document.getElementById("langSel").onchange=(e)=>setLang(e.target.value);
 document.getElementById("resetBtn").onclick=()=>{
   if(confirm("Reset all progress, points and badges?")){
-    state={visited:[],points:0,badges:[],vouchers:{},user:state.user,lang:state.lang,
+    state={visited:[],points:0,badges:[],vouchers:{},quiz:{},user:state.user,lang:state.lang,
            routeStops:PLACES.map(p=>p.id), routeCustomOrder:false}; save();
     refreshMarkers(); renderList(); updateScore(); renderRewards(); updateNearest();
     if(activeId) updateCheckBtn(); toast("Progress reset.");
@@ -2475,6 +3165,12 @@ startGPS();   // begin tracking the visitor so the map follows them & geofence w
   if(window.L){ initMap(); return; }
   document.getElementById("keyNotice").style.display="flex";
 })();
+
+/* reveal the secret stop if enough points were already earned */
+checkSecretUnlock();
+
+/* hidden admin unlock via ?admin=<code> */
+checkAdminParam();
 
 /* if opened via a scanned QR link (…?checkin=id), check that place in */
 handleCheckinParam();
